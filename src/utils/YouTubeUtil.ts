@@ -142,6 +142,11 @@ export class YouTubeUtil {
     }
   }
 
+  public static getChatAuthorChannelId(renderer: any): string {
+    const text = renderer.authorExternalChannelId || null
+    return text
+  }
+
   public static getChatAuthorName(renderer: any): string {
     const text = renderer.authorName?.simpleText || null
     return text

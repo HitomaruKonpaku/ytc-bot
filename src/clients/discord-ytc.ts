@@ -1,12 +1,14 @@
 import winston from 'winston'
 import { YouTubeChat } from '../classes/YouTubeChat'
 import { logger as baseLogger } from '../logger'
+import { Util } from '../utils/Util'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
 import { discord } from './discord'
 
 class DiscordYtc {
   private logger: winston.Logger
 
+  private config: Record<string, any>
   private ytChats: Record<string, {
     ytChat: YouTubeChat,
     channelIds: Set<string>,
@@ -14,6 +16,7 @@ class DiscordYtc {
 
   constructor() {
     this.logger = baseLogger.child({ label: '[DiscordYtc]' })
+    this.config = Util.getConfig().ytChat || {}
   }
 
   public async downloadChat(url: string) {
@@ -94,13 +97,25 @@ class DiscordYtc {
       return
     }
 
+    const authorChannelId = YouTubeUtil.getChatAuthorChannelId(renderer)
     const authorName = YouTubeUtil.getChatAuthorName(renderer)
+    const blockChannels = this.config.blockChannels || []
+    if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+      return
+    }
+    const allowChannels = this.config.channels?.[ytChat.ytVideoMeta.channelId]?.allowChannels || []
+    if (allowChannels.length && !allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+      return
+    }
+
     const message = YouTubeUtil.getChatMessage(renderer)
-    if (!['[EN]'].some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
+    const keywords = this.config.keywords || []
+    if (keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
       return
     }
 
     const content = `💬 ${authorName}: ${message}`
+    this.logger.debug('Message info', { authorName, authorChannelId, msg: message })
     this.logger.verbose(`[${ytChat.id}] [MSG] ${content}`)
     channelIds.forEach((channelId) => {
       discord.sendToChannel(channelId, { content })
