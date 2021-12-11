@@ -69,7 +69,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
         return
       }
       if (action.addBannerToLiveChatCommand) {
-        this.logger.warn('handleAction #addBannerToLiveChatCommand', action)
+        this.handleAddBannerToLiveChatCommand(action.addBannerToLiveChatCommand)
         return
       }
       if (action.addLiveChatTickerItemAction) {
@@ -99,16 +99,25 @@ export class YouTubeChatActionHandler extends EventEmitter {
     }
   }
 
+  private appendFile(filePath: string, data: any) {
+    try {
+      if (!existsSync(this.outDir)) {
+        mkdirSync(this.outDir, { recursive: true })
+      }
+      const payload = `${typeof data === 'string' ? data : JSON.stringify(data)}\n`
+      appendFileSync(filePath, payload)
+    } catch (error) {
+      this.logger.error(`appendFile: ${error.message}`)
+    }
+  }
+
   private handleAddChatItemAction(action: any) {
-    const item = YouTubeUtil.getCleanChatItem(action?.item)
+    const item = action?.item
     if (!item) {
       return
     }
 
-    if (!existsSync(this.outDir)) {
-      mkdirSync(this.outDir, { recursive: true })
-    }
-    appendFileSync(this.outFile, `${JSON.stringify(item)}\n`)
+    this.appendFile(this.outFile, item)
 
     if (item.liveChatTextMessageRenderer) {
       const renderer = item.liveChatTextMessageRenderer
@@ -125,10 +134,10 @@ export class YouTubeChatActionHandler extends EventEmitter {
   private handleLiveChatTextMessageRenderer(renderer: any) {
     this.textMessageCount += 1
     try {
-      const authorName = renderer.authorName.simpleText
-      const message = YouTubeUtil.buildMessage(renderer.message)
+      const authorName = YouTubeUtil.getChatAuthorName(renderer)
+      const message = YouTubeUtil.getChatMessage(renderer)
       const line = `${authorName}: ${message}`
-      appendFileSync(this.msgOutFile, `${line}\n`)
+      this.appendFile(this.msgOutFile, line)
     } catch (error) {
       this.logger.error(`handleLiveChatTextMessageRenderer: ${error.message}`, { renderer })
     }
@@ -137,13 +146,35 @@ export class YouTubeChatActionHandler extends EventEmitter {
   private handleLiveChatPaidMessageRenderer(renderer: any) {
     this.paidMessageCount += 1
     try {
-      const authorName = renderer.authorName?.simpleText
-      const purchaseAmount = renderer.purchaseAmountText?.simpleText
-      const message = YouTubeUtil.buildMessage(renderer.message)
+      const authorName = YouTubeUtil.getChatAuthorName(renderer)
+      const message = YouTubeUtil.getChatMessage(renderer)
+      const purchaseAmount = YouTubeUtil.getChatPurchaseAmount(renderer)
       const line = `${authorName}: [${purchaseAmount}] ${message}`
-      appendFileSync(this.scOutFile, `${line}\n`)
+      this.appendFile(this.scOutFile, line)
     } catch (error) {
       this.logger.error(`handleLiveChatPaidMessageRenderer: ${error.message}`, { renderer })
+    }
+  }
+
+  private handleAddBannerToLiveChatCommand(command: any) {
+    const { bannerRenderer } = command
+    if (!bannerRenderer) {
+      this.logger.warn('handleAddBannerToLiveChatCommand: bannerRenderer not found', command)
+      return
+    }
+    this.appendFile(this.outFile, bannerRenderer)
+    const renderer = bannerRenderer.liveChatBannerRenderer?.contents?.liveChatTextMessageRenderer
+    if (!renderer) {
+      this.logger.warn('handleAddBannerToLiveChatCommand: renderer not found', command)
+      return
+    }
+    try {
+      const authorName = YouTubeUtil.getChatAuthorName(renderer)
+      const message = YouTubeUtil.getChatMessage(renderer)
+      const line = `${authorName}: ${message}`
+      this.logger.warn(`[PINNED MSG] ${line}`)
+    } catch (error) {
+      this.logger.error(`handleAddBannerToLiveChatCommand: ${error.message}`)
     }
   }
 }

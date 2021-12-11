@@ -85,6 +85,7 @@ export class YouTubeChatCrawler extends EventEmitter {
   }
 
   private handleActions(actions: any[]) {
-    this.emit('actions', actions)
+    const newActions = YouTubeUtil.getCleanActions(actions)
+    this.emit('actions', newActions)
   }
 }

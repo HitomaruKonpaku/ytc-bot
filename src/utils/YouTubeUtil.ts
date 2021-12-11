@@ -109,33 +109,48 @@ export class YouTubeUtil {
     return continuationData
   }
 
-  public static getCleanChatItem(item: any) {
-    if (!item) {
-      return item
+  public static getCleanActions(obj: any) {
+    if (!obj) {
+      return obj
     }
     try {
-      const keys = ['contextMenuAccessibility', 'contextMenuEndpoint', 'trackingParams']
-      const newItem = JSON.parse(JSON.stringify(item, (key, value) => (!keys.includes(key) ? value : undefined)))
-      return newItem
+      const keys = [
+        'clickTrackingParams',
+        'contextMenuAccessibility',
+        'contextMenuEndpoint',
+        'trackingParams',
+      ]
+      const newObj = JSON.parse(JSON.stringify(obj, (key, value) => (!keys.includes(key) ? value : undefined)))
+      return newObj
     } catch (error) {
-      logger.error(`getCleanChatItem: ${error.message}`, item)
-      return item
+      logger.error(`getCleanActions: ${error.message}`, obj)
+      return obj
     }
   }
 
-  public static buildMessage(message: any): string {
-    const runs = message?.runs as any[]
+  public static getChatAuthorName(renderer: any): string {
+    const text = renderer.authorName?.simpleText || null
+    return text
+  }
+
+  public static getChatMessage(renderer: any): string {
+    const runs = renderer.message?.runs as any[]
     if (!runs?.length) {
       return ''
     }
-    const msg = runs
+    const text = runs
       .reduce((pv, cv) => {
-        let newValue = cv.emoji?.isCustomEmoji ? cv.emoji?.shortcuts?.[0] : cv.emoji?.emojiId
-        newValue = newValue || cv.text || ''
-        const value = [pv, newValue].join(' ')
-        return value
+        let chunk = cv.emoji?.isCustomEmoji ? cv.emoji?.shortcuts?.[0] : cv.emoji?.emojiId
+        chunk = chunk || cv.text || ''
+        const msg = [pv, chunk].join(' ')
+        return msg
       }, '')
       .trim()
-    return msg
+    return text
+  }
+
+  public static getChatPurchaseAmount(renderer: any): string {
+    const text = renderer.purchaseAmountText?.simpleText || null
+    return text
   }
 }
