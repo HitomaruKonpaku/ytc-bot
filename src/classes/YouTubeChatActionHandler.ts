@@ -184,7 +184,11 @@ export class YouTubeChatActionHandler extends EventEmitter {
     }
   }
 
+  /**
+   * @see https://github.com/lyger/matsuri-monitor/blob/master/matsuri_monitor/clients/monitor.py#L37
+   */
   private handleAddLiveChatTickerItemAction(action: any) {
-    this.logger.warn('handleAddLiveChatTickerItemAction', { action })
+    // SuperChat data but alreay handle by `handleAddChatItemAction`
+    this.logger.silly('handleAddLiveChatTickerItemAction', { action })
   }
 }
