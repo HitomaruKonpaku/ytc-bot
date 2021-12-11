@@ -32,8 +32,10 @@ export class YouTubeChat extends EventEmitter {
       this.emit('stop')
     })
     this.crawler.on('streamEnd', () => {
-      this.logger.info('[STREAM] END')
       this.emit('streamEnd')
+    })
+    this.crawler.on('videoEnd', () => {
+      this.emit('videoEnd')
     })
     this.crawler.once('videoMeta', (meta) => {
       this.actionHandler = new YouTubeChatActionHandler(this.id, meta)

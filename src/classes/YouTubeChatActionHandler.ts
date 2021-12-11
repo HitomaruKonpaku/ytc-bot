@@ -113,8 +113,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
   }
 
   private handleReplayChatItemAction(action: any) {
-    this.logger.debug('handleReplayChatItemAction', { action })
-    debugger
+    this.handleActions(action?.actions)
   }
 
   private handleAddChatItemAction(action: any) {

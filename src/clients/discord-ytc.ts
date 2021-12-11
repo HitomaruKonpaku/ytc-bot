@@ -74,6 +74,9 @@ class DiscordYtc {
     ytChat.on('streamEnd', () => {
       this.removeYtChat(ytChat.id)
     })
+    ytChat.on('videoEnd', () => {
+      this.removeYtChat(ytChat.id)
+    })
     ytChat.on('liveChatTextMessageRenderer', (renderer: any) => {
       this.handleLiveChatTextMessageRenderer(ytChat, renderer)
     })
@@ -97,8 +100,8 @@ class DiscordYtc {
       return
     }
 
-    const content = `💬 ${authorName}: ${message} | ${ytChat.id}`
-    this.logger.verbose(`[MSG] ${content}`)
+    const content = `💬 ${authorName}: ${message}`
+    this.logger.verbose(`[${ytChat.id}] [MSG] ${content}`)
     channelIds.forEach((channelId) => {
       discord.sendToChannel(channelId, { content })
     })
