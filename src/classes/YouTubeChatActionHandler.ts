@@ -61,7 +61,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
   private handleAction(action: any) {
     try {
       if (action.replayChatItemAction) {
-        this.logger.warn('handleAction #replayChatItemAction', action)
+        this.handleReplayChatItemAction(action.replayChatItemAction)
         return
       }
       if (action.addChatItemAction) {
@@ -73,6 +73,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
         return
       }
       if (action.addLiveChatTickerItemAction) {
+        this.handleAddLiveChatTickerItemAction(action.addLiveChatTickerItemAction)
         return
       }
       if (action.markChatItemAsDeletedAction) {
@@ -93,9 +94,9 @@ export class YouTubeChatActionHandler extends EventEmitter {
       if (action.clickTrackingParams) {
         return
       }
-      this.logger.warn('Unhandle action', action)
+      this.logger.warn('Unhandle action', { action })
     } catch (error) {
-      this.logger.error(`handleAction: ${error}`, action)
+      this.logger.error(`handleAction: ${error}`, { action })
     }
   }
 
@@ -109,6 +110,11 @@ export class YouTubeChatActionHandler extends EventEmitter {
     } catch (error) {
       this.logger.error(`appendFile: ${error.message}`)
     }
+  }
+
+  private handleReplayChatItemAction(action: any) {
+    this.logger.debug('handleReplayChatItemAction', { action })
+    debugger
   }
 
   private handleAddChatItemAction(action: any) {
@@ -159,13 +165,13 @@ export class YouTubeChatActionHandler extends EventEmitter {
   private handleAddBannerToLiveChatCommand(command: any) {
     const { bannerRenderer } = command
     if (!bannerRenderer) {
-      this.logger.warn('handleAddBannerToLiveChatCommand: bannerRenderer not found', command)
+      this.logger.warn('handleAddBannerToLiveChatCommand: bannerRenderer not found', { command })
       return
     }
     this.appendFile(this.outFile, bannerRenderer)
     const renderer = bannerRenderer.liveChatBannerRenderer?.contents?.liveChatTextMessageRenderer
     if (!renderer) {
-      this.logger.warn('handleAddBannerToLiveChatCommand: renderer not found', command)
+      this.logger.warn('handleAddBannerToLiveChatCommand: renderer not found', { command })
       return
     }
     try {
@@ -176,5 +182,9 @@ export class YouTubeChatActionHandler extends EventEmitter {
     } catch (error) {
       this.logger.error(`handleAddBannerToLiveChatCommand: ${error.message}`)
     }
+  }
+
+  private handleAddLiveChatTickerItemAction(action: any) {
+    this.logger.warn('handleAddLiveChatTickerItemAction', { action })
   }
 }
