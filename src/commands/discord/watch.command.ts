@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { CommandInteraction } from 'discord.js'
 import { discordYtc } from '../../clients/discord-ytc'
+import { DiscordUtil } from '../../utils/DiscordUtil'
 import { YouTubeUtil } from '../../utils/YouTubeUtil'
 
 export class WatchCommand {
@@ -14,11 +15,16 @@ export class WatchCommand {
 
   public static async execute(interaction: CommandInteraction) {
     await interaction.deferReply()
+    if (!DiscordUtil.isOwner(interaction.user.id)) {
+      await DiscordUtil.replyInteractionInsufficientPermissions(interaction)
+      return
+    }
+
     const url = interaction.options.getString('url')
 
     try {
       await discordYtc.downloadChat(url)
-      await interaction.editReply(`Watching __**${YouTubeUtil.getVideoId(url)}**__ chat...`)
+      await interaction.editReply(`Watching __**<${YouTubeUtil.getVideoUrl(YouTubeUtil.getVideoId(url))}>**__ chat...`)
     } catch (error) {
       await interaction.editReply(error.message)
     }

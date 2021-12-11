@@ -16,6 +16,10 @@ export class YouTubeUtil {
     return id
   }
 
+  public static getVideoUrl(id: string) {
+    return `https://youtu.be/${id}`
+  }
+
   public static async getVideoPage(id: string, headers: Record<string, string>): Promise<string> {
     const url = `https://www.youtube.com/watch?v=${id}`
     const { data } = await axios.get(url, { headers })
