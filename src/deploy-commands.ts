@@ -1,13 +1,10 @@
 import { REST } from '@discordjs/rest'
 import { Routes } from 'discord-api-types/v9'
 import 'dotenv/config'
-import { AddCommand, RemoveCommand, WatchCommand } from './commands/discord-command'
+import { DISCORD_COMMANDS } from './constants/discord-commands.constant'
 
-const commands = [
-  WatchCommand.command,
-  AddCommand.command,
-  RemoveCommand.command,
-]
+const commands = DISCORD_COMMANDS
+  .map((v) => v.command)
   .map((command) => command.toJSON())
 
 const token = process.env.DISCORD_TOKEN

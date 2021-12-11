@@ -2,7 +2,7 @@ import {
   Channel, Client, Collection, MessageOptions, MessagePayload, TextChannel,
 } from 'discord.js'
 import winston from 'winston'
-import { AddCommand, RemoveCommand, WatchCommand } from '../commands/discord-command'
+import { DISCORD_COMMANDS } from '../constants/discord-commands.constant'
 import { DISCORD_CLIENT_OPTIONS } from '../constants/discord.constant'
 import { logger as baseLogger } from '../logger'
 
@@ -67,13 +67,8 @@ class Discord {
   }
 
   private initCommands() {
-    const commands = [
-      WatchCommand,
-      AddCommand,
-      RemoveCommand,
-    ]
     this.commands.clear()
-    commands.forEach((v) => this.commands.set(v.command.name, v))
+    DISCORD_COMMANDS.forEach((v) => this.commands.set(v.command.name, v))
   }
 
   private initClientEventHandlers() {
