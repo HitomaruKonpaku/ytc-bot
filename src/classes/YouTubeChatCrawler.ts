@@ -74,7 +74,6 @@ export class YouTubeChatCrawler extends EventEmitter {
     const data = YouTubeUtil.getYtInitialData(payload)
     this.ytConfig = config
 
-    // eslint-disable-next-line max-len
     const { actions, continuations } = this.isStreaming ? data.contents.liveChatRenderer : data.continuationContents.liveChatContinuation
     this.handleActions(actions)
     const newContinuationData = YouTubeUtil.getContinuationData(continuations)
@@ -82,7 +81,6 @@ export class YouTubeChatCrawler extends EventEmitter {
   }
 
   private getReloadContinuation() {
-    // eslint-disable-next-line max-len
     const continuation = this.ytVideoInitialData?.contents?.twoColumnWatchNextResults?.conversationBar?.liveChatRenderer?.continuations?.[0]?.reloadContinuationData?.continuation
     if (!continuation) {
       this.logger.warn('reload continuation not found')
@@ -98,9 +96,7 @@ export class YouTubeChatCrawler extends EventEmitter {
     }
     try {
       const liveChat = this.isStreaming
-        // eslint-disable-next-line max-len
         ? await YouTubeUtil.getNextLiveChat(this.ytConfig.INNERTUBE_API_KEY, this.ytConfig.INNERTUBE_CONTEXT, continuationData.continuation, this.headers)
-        // eslint-disable-next-line max-len
         : await YouTubeUtil.getNextLiveChatReplay(this.ytConfig.INNERTUBE_API_KEY, this.ytConfig.INNERTUBE_CONTEXT, continuationData.continuation, this.headers)
       if (!liveChat.continuationContents) {
         this.logger.info('[STREAM] END')
