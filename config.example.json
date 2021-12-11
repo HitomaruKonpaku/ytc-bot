@@ -1,0 +1,19 @@
+{
+  "ytChat": {
+    "keywords": [
+      "[EN]"
+    ],
+    "channels": {
+      "UC7fk0CB07ly8oSl0aqKkqFg": {
+        "name": "Nakiri Ayame Ch. 百鬼あやめ",
+        "allowChannels": [
+          {
+            "id": "UC-ORlsiOfeFrWJyxqnQrxhA",
+            "name": "El Leche"
+          }
+        ]
+      }
+    },
+    "blockChannels": []
+  }
+}
