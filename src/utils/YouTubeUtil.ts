@@ -35,6 +35,19 @@ export class YouTubeUtil {
     return data
   }
 
+  public static async getInitLiveChatReplay(continuation: string, headers: Record<string, string>): Promise<string> {
+    const url = `https://www.youtube.com/live_chat_replay?continuation=${continuation}`
+    const { data } = await axios.get(url, { headers })
+    return data
+  }
+
+  public static async getNextLiveChatReplay(key: string, context: Record<string, any>, continuation: string, headers: Record<string, string>): Promise<any> {
+    const url = `https://www.youtube.com/youtubei/v1/live_chat/get_live_chat_replay?key=${key}`
+    const body = { context, continuation }
+    const { data } = await axios.post(url, body, { headers })
+    return data
+  }
+
   public static getVideoMeta(payload: string) {
     const $ = cheerio.load(payload)
     const baseNode = Array.from($('body *[itemid][itemtype]'))[0]
@@ -100,8 +113,9 @@ export class YouTubeUtil {
   }
 
   public static getContinuationData(continuations: any[]): any {
-    const continuation = continuations.find((v) => v.timedContinuationData || v.invalidationContinuationData)
-    const continuationData = continuation?.timedContinuationData || continuation?.invalidationContinuationData
+    const continuationData = continuations
+      .map((v) => v?.timedContinuationData || v?.invalidationContinuationData || v?.liveChatReplayContinuationData)
+      .find((v) => v)
     if (continuationData) {
       delete continuationData.clickTrackingParams
       delete continuationData.invalidationId

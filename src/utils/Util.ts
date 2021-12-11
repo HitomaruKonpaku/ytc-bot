@@ -1,3 +1,5 @@
+import { program } from 'commander'
+import { CookieMap } from 'cookiefile'
 import { readFileSync } from 'fs'
 import path from 'path'
 import { logger as baseLogger } from '../logger'
@@ -24,5 +26,19 @@ export class Util {
   public static splitArrayIntoChunk<T>(arr: T[], chunkSize: number) {
     return [...Array(Math.ceil(arr.length / chunkSize))]
       .map(() => arr.splice(0, chunkSize))
+  }
+
+  public static getCookies(): any[] {
+    try {
+      const domains = ['youtube.com']
+      const cookiePath = program.getOptionValue('cookies') || path.join(__dirname, '../../cookies.txt')
+      const map = new CookieMap(cookiePath)
+      const cookies: any[] = Array.from(map.values())
+        .filter((cookie: any) => domains.some((v) => cookie.domain.includes(v)))
+      return cookies
+    } catch (error) {
+      logger.warn(`getCookies: ${error.message}`)
+    }
+    return []
   }
 }
