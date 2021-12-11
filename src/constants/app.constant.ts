@@ -1,1 +1,1 @@
-export const CHAT_DIR = '../chats'
+export const CHAT_DIR = '../../chats'

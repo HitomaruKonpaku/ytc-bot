@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 import { appendFileSync, existsSync, mkdirSync } from 'fs'
-import path from 'path/posix'
+import path from 'path'
 import winston from 'winston'
 import { CHAT_DIR } from '../constants/app.constant'
 import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
