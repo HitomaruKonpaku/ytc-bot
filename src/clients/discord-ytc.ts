@@ -2,6 +2,7 @@ import winston from 'winston'
 import { YouTubeChat } from '../classes/YouTubeChat'
 import { logger as baseLogger } from '../logger'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
+import { discord } from './discord'
 
 class DiscordYtc {
   private logger: winston.Logger
@@ -53,6 +54,8 @@ class DiscordYtc {
       await ytChat.start()
     } catch (error) {
       this.logger.error(`addYtChat: ${error.message}`)
+      this.removeYtChat(id)
+      throw error
     }
   }
 
@@ -65,15 +68,40 @@ class DiscordYtc {
   }
 
   private initYouTubeChatEventHandlers(ytChat: YouTubeChat) {
-    ytChat.on('end', () => {
+    ytChat.on('stop', () => {
       this.removeYtChat(ytChat.id)
     })
-    // ytChat.on('liveChatTextMessageRenderer', (renderer: any) => {
-    //   // TODO
-    // })
+    ytChat.on('streamEnd', () => {
+      this.removeYtChat(ytChat.id)
+    })
+    ytChat.on('liveChatTextMessageRenderer', (renderer: any) => {
+      this.handleLiveChatTextMessageRenderer(ytChat, renderer)
+    })
     // ytChat.on('liveChatPaidMessageRenderer', (renderer: any) => {
     //   // TODO
     // })
+  }
+
+  private async handleLiveChatTextMessageRenderer(ytChat: YouTubeChat, renderer: any) {
+    if (!this.ytChats[ytChat.id]) {
+      return
+    }
+    const channelIds = [...this.ytChats[ytChat.id].channelIds]
+    if (!channelIds.length) {
+      return
+    }
+
+    const authorName = YouTubeUtil.getChatAuthorName(renderer)
+    const message = YouTubeUtil.getChatMessage(renderer)
+    if (!['[EN]'].some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
+      return
+    }
+
+    const content = `💬 ${authorName}: ${message} | ${ytChat.id}`
+    this.logger.verbose(`[MSG] ${content}`)
+    channelIds.forEach((channelId) => {
+      discord.sendToChannel(channelId, { content })
+    })
   }
 }
 

@@ -28,6 +28,13 @@ export class YouTubeChat extends EventEmitter {
   }
 
   private initCrawlerEventHanders() {
+    this.crawler.on('stop', () => {
+      this.emit('stop')
+    })
+    this.crawler.on('streamEnd', () => {
+      this.logger.info('[STREAM] END')
+      this.emit('streamEnd')
+    })
     this.crawler.once('videoMeta', (meta) => {
       this.actionHandler = new YouTubeChatActionHandler(this.id, meta)
       this.initActionHandlerEventHanders()
@@ -35,10 +42,6 @@ export class YouTubeChat extends EventEmitter {
     this.crawler.on('actions', (actions: any[]) => {
       this.actionHandler.handleActions(actions)
       this.emit('actions', actions)
-    })
-    this.crawler.on('end', () => {
-      this.logger.info('END')
-      this.emit('end')
     })
   }
 

@@ -61,7 +61,7 @@ export class YouTubeChatCrawler extends EventEmitter {
       )
       if (!liveChat.continuationContents) {
         this.logger.info('[STREAM] END')
-        this.emit('end')
+        this.emit('streamEnd')
         return
       }
       const { actions, continuations } = liveChat.continuationContents.liveChatContinuation
@@ -74,6 +74,10 @@ export class YouTubeChatCrawler extends EventEmitter {
       this.logger.warn('newContinuationData not found', continuations)
     } catch (error) {
       this.logger.error(`getLiveChat: ${error.message}`)
+      if (error.response?.status === 404) {
+        this.emit('stop')
+        return
+      }
     }
     this.getLiveChatWithTimeout(continuationData)
   }
