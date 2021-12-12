@@ -111,19 +111,20 @@ export class YouTubeChatCrawler extends EventEmitter {
         return
       }
       this.logger.warn('newContinuationData not found', continuations)
-      if (!this.isStreaming) {
-        this.logger.info('[VIDEO] END')
-        this.emit('videoEnd')
+      if (this.isStreaming) {
+        this.emit('stop')
         return
       }
+      this.logger.info('[VIDEO] END')
+      this.emit('videoEnd')
     } catch (error) {
       this.logger.error(`getLiveChat: ${error.message}`)
       if (error.response?.status === 404) {
         this.emit('stop')
         return
       }
+      this.getLiveChatWithTimeout(continuationData)
     }
-    this.getLiveChatWithTimeout(continuationData)
   }
 
   private getLiveChatWithTimeout(continuationData: any) {
