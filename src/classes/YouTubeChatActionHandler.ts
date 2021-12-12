@@ -2,7 +2,7 @@ import EventEmitter from 'events'
 import { appendFileSync, existsSync, mkdirSync } from 'fs'
 import path from 'path'
 import winston from 'winston'
-import { CHAT_DIR } from '../constants/app.constant'
+import { APP_CHAT_DIR } from '../constants/app.constant'
 import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
 import { logger as baseLogger } from '../logger'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
@@ -41,7 +41,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
 
   private initOutFiles() {
     const subDir = this.ytVideoMeta?.author?.name || this.ytVideoMeta?.channelId
-    this.outDir = path.join(__dirname, CHAT_DIR, subDir)
+    this.outDir = path.join(__dirname, APP_CHAT_DIR, subDir)
     const date = new Date()
     const time = [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()]
       .map((v) => String(v)
