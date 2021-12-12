@@ -12,13 +12,15 @@ export class YouTubeChatCrawler extends EventEmitter {
 
   private headers = {
     'accept-language': 'en-US,en;q=0.9,vi;q=0.8',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
   }
 
   private ytVideoInitialData: Record<string, any>
-  private ytConfig: Record<string, any>
   private isMembersOnly = false
   private isStreaming = true
+
+  private INNERTUBE_API_KEY: string
+  private INNERTUBE_CONTEXT: Record<string, any>
 
   constructor(public id: string) {
     super()
@@ -30,6 +32,7 @@ export class YouTubeChatCrawler extends EventEmitter {
       this.setCookies()
       await this.initVideo()
       await this.initLiveChat()
+      this.cleanupData()
     } catch (error) {
       this.logger.error(error.message)
       throw error
@@ -45,6 +48,10 @@ export class YouTubeChatCrawler extends EventEmitter {
       Object.assign(this.headers, { cookie })
       this.logger.info('Cookies applied')
     }
+  }
+
+  private cleanupData() {
+    this.ytVideoInitialData = null
   }
 
   private async initVideo() {
@@ -72,7 +79,8 @@ export class YouTubeChatCrawler extends EventEmitter {
       : await YouTubeUtil.getInitLiveChatReplay(this.getReloadContinuation(), this.headers)
     const config = YouTubeUtil.getYtConfig(payload)
     const data = YouTubeUtil.getYtInitialData(payload)
-    this.ytConfig = config
+    this.INNERTUBE_API_KEY = config.INNERTUBE_API_KEY
+    this.INNERTUBE_CONTEXT = config.INNERTUBE_CONTEXT
 
     const { actions, continuations } = this.isStreaming ? data.contents.liveChatRenderer : data.continuationContents.liveChatContinuation
     this.handleActions(actions)
@@ -96,8 +104,8 @@ export class YouTubeChatCrawler extends EventEmitter {
     }
     try {
       const liveChat = this.isStreaming
-        ? await YouTubeUtil.getNextLiveChat(this.ytConfig.INNERTUBE_API_KEY, this.ytConfig.INNERTUBE_CONTEXT, continuationData.continuation, this.headers)
-        : await YouTubeUtil.getNextLiveChatReplay(this.ytConfig.INNERTUBE_API_KEY, this.ytConfig.INNERTUBE_CONTEXT, continuationData.continuation, this.headers)
+        ? await YouTubeUtil.getNextLiveChat(this.INNERTUBE_API_KEY, this.INNERTUBE_CONTEXT, continuationData.continuation, this.headers)
+        : await YouTubeUtil.getNextLiveChatReplay(this.INNERTUBE_API_KEY, this.INNERTUBE_CONTEXT, continuationData.continuation, this.headers)
       if (!liveChat.continuationContents) {
         this.logger.info('[STREAM] END')
         this.emit('streamEnd')
