@@ -140,7 +140,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
     try {
       const authorName = YouTubeUtil.getChatAuthorName(renderer)
       const message = YouTubeUtil.getChatMessage(renderer)
-      const line = `${authorName}: ${message}`
+      const line = `${authorName}: ${message}`.trim()
       this.appendFile(this.msgOutFile, line)
     } catch (error) {
       this.logger.error(`handleLiveChatTextMessageRenderer: ${error.message}`, { renderer })
@@ -153,7 +153,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
       const authorName = YouTubeUtil.getChatAuthorName(renderer)
       const message = YouTubeUtil.getChatMessage(renderer)
       const purchaseAmount = YouTubeUtil.getChatPurchaseAmount(renderer)
-      const line = `${authorName}: [${purchaseAmount}] ${message}`
+      const line = `${authorName}: [${purchaseAmount}] ${message}`.trim()
       this.appendFile(this.scOutFile, line)
     } catch (error) {
       this.logger.error(`handleLiveChatPaidMessageRenderer: ${error.message}`, { renderer })
@@ -175,7 +175,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
     try {
       const authorName = YouTubeUtil.getChatAuthorName(renderer)
       const message = YouTubeUtil.getChatMessage(renderer)
-      const line = `${authorName}: ${message}`
+      const line = `${authorName}: ${message}`.trim()
       this.logger.warn(`[PINNED MSG] ${line}`)
     } catch (error) {
       this.logger.error(`handleAddBannerToLiveChatCommand: ${error.message}`)

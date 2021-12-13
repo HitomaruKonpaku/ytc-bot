@@ -15,7 +15,7 @@ export class Util {
         config,
         JSON.parse(readFileSync(
           path.join('config.json'),
-          'utf-8',
+          { encoding: 'utf8' },
         )),
       )
     } catch (error) {

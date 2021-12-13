@@ -110,11 +110,11 @@ class DiscordYtc {
 
     const message = YouTubeUtil.getChatMessage(renderer)
     const keywords = this.config.keywords || []
-    if (keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
+    if (message && keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
       return
     }
 
-    const content = `💬 ${authorName}: ${message}`
+    const content = `💬 ${authorName}: ${message}`.trim()
     this.logger.debug('Message info', { authorName, authorChannelId, msg: message })
     this.logger.verbose(`[${ytChat.id}] [MSG] ${content}`)
     channelIds.forEach((channelId) => {
