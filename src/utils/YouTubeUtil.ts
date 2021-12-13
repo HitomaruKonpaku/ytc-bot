@@ -1,12 +1,18 @@
 /* eslint-disable max-len */
 import axios from 'axios'
 import cheerio from 'cheerio'
+import { createHash } from 'crypto'
 import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
 import { logger as baseLogger } from '../logger'
+import { Util } from './Util'
 
 const logger = baseLogger.child({ label: '[YouTubeUtil]' })
 
 export class YouTubeUtil {
+  public static getOrigin() {
+    return 'https://www.youtube.com'
+  }
+
   public static getVideoId(url: string): string {
     const pattern = /^(?:(?:https:\/\/youtu\.be\/)|(https:\/\/www\.youtube\.com\/watch\?v=)){0,1}[\w-]{11}$/g
     if (!pattern.test(url)) {
@@ -50,6 +56,21 @@ export class YouTubeUtil {
     const body = { context, continuation }
     const { data } = await axios.post(url, body, { headers })
     return data
+  }
+
+  public static getSAPISIDHASH() {
+    const cookies = Util.getCookies()
+    const SAPISID = cookies.find((cookie) => cookie.cookieName === 'SAPISID')?.value
+    if (!SAPISID) {
+      logger.warn('SAPISID not found')
+      return ''
+    }
+    const time = Math.round(Date.now() / 1000)
+    const hash = createHash('sha1')
+      .update([time, SAPISID, this.getOrigin()].join(' '))
+      .digest('hex')
+    const SAPISIDHASH = `SAPISIDHASH ${time}_${hash}`
+    return SAPISIDHASH
   }
 
   public static getVideoMeta(payload: string) {

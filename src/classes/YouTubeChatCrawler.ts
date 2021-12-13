@@ -31,6 +31,7 @@ export class YouTubeChatCrawler extends EventEmitter {
     try {
       this.setCookies()
       await this.initVideo()
+      this.updateLiveChatHeaders()
       await this.initLiveChat()
       this.cleanupData()
     } catch (error) {
@@ -48,6 +49,17 @@ export class YouTubeChatCrawler extends EventEmitter {
       Object.assign(this.headers, { cookie })
       this.logger.info('Cookies applied')
     }
+  }
+
+  private updateLiveChatHeaders() {
+    if (!this.isMembersOnly || !this.isStreaming) {
+      return
+    }
+    Object.assign(this.headers, {
+      authorization: YouTubeUtil.getSAPISIDHASH(),
+      origin: YouTubeUtil.getOrigin(),
+    })
+    this.logger.info('Update live chat headers')
   }
 
   private cleanupData() {
