@@ -9,7 +9,7 @@ const pkg = require('../package.json')
 program
   .version(pkg.version)
   .option('-d, --debug', 'Show debug logs')
-  .option('-c, --cookies <FILE_PATH>', 'File to load cookies')
+  .option('-c, --cookies <FILE_PATH>', 'File to load cookies, default to ./cookies.txt')
 
 program.action(async (args) => {
   if (args.debug) {
