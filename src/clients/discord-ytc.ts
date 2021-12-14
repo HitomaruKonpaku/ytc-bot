@@ -100,6 +100,8 @@ class DiscordYtc {
 
     const authorChannelId = YouTubeUtil.getChatAuthorChannelId(renderer)
     const authorName = YouTubeUtil.getChatAuthorName(renderer)
+    const message = YouTubeUtil.getChatMessage(renderer)
+    if (authorChannelId !== ytChat.ytVideoMeta.channelId) {
       const blockChannels = this.config.blockChannels || []
       if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
         return
@@ -108,12 +110,11 @@ class DiscordYtc {
       if (allowChannels.length && !allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
         return
       }
-
-    const message = YouTubeUtil.getChatMessage(renderer)
       const keywords = this.config.keywords || []
       if (message && keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
         return
       }
+    }
 
     const content = `💬 ${authorName}: ${message}`.trim()
     this.logger.debug('Message info', { authorName, authorChannelId, msg: message })
