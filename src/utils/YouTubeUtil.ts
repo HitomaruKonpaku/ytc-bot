@@ -2,7 +2,7 @@
 import axios from 'axios'
 import cheerio from 'cheerio'
 import { createHash } from 'crypto'
-import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
+import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
 import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
 import { YouTubeLiveChatContinuation } from '../interfaces/YouTubeLiveChatContinuation.interface'
 import { YouTubeLiveChatContinuationData } from '../interfaces/YouTubeLiveChatContinuationData.interface'
@@ -106,7 +106,7 @@ export class YouTubeUtil {
     }
 
     const meta = getMeta(baseNode)
-    return meta as YouTubeVideoMeta
+    return meta as YouTubeMetaVideo
   }
 
   public static getYtInitialData(payload: string): any {

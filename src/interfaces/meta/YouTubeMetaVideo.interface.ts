@@ -1,6 +1,6 @@
-import { YouTubeAuthor } from './YouTubeAuthor.interface'
+import { YouTubeMetaAuthor } from './YouTubeMetaAuthor.interface'
 
-export interface YouTubeVideoMeta {
+export interface YouTubeMetaVideo {
   url?: string
   name?: string
   description?: string
@@ -9,7 +9,7 @@ export interface YouTubeVideoMeta {
   videoId?: string
   duration?: string
   unlisted?: string
-  author?: YouTubeAuthor
+  author?: YouTubeMetaAuthor
   thumbnailUrl?: string
   embedUrl?: string
   playerType?: string

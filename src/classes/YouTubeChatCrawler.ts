@@ -1,6 +1,6 @@
 import EventEmitter from 'events'
 import winston from 'winston'
-import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
+import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
 import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
 import { YouTubeLiveChatContinuationData } from '../interfaces/YouTubeLiveChatContinuationData.interface'
 import { logger as baseLogger } from '../logger'
@@ -8,7 +8,7 @@ import { Util } from '../utils/Util'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
 
 export class YouTubeChatCrawler extends EventEmitter {
-  public ytVideoMeta: YouTubeVideoMeta
+  public ytVideoMeta: YouTubeMetaVideo
 
   private logger: winston.Logger
 

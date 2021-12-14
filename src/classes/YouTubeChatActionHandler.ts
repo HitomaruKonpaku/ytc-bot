@@ -3,7 +3,7 @@ import { appendFileSync, existsSync, mkdirSync } from 'fs'
 import path from 'path'
 import winston from 'winston'
 import { APP_CHAT_DIR } from '../constants/app.constant'
-import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
+import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
 import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
 import { logger as baseLogger } from '../logger'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
@@ -22,7 +22,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
 
   constructor(
     public id: string,
-    public ytVideoMeta: YouTubeVideoMeta,
+    public ytVideoMeta: YouTubeMetaVideo,
   ) {
     super()
     this.logger = baseLogger.child({ label: `[YouTubeChatActionHandler@${id}]` })
