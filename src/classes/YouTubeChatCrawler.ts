@@ -1,6 +1,8 @@
 import EventEmitter from 'events'
 import winston from 'winston'
 import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
+import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
+import { YouTubeLiveChatContinuationData } from '../interfaces/YouTubeLiveChatContinuationData.interface'
 import { logger as baseLogger } from '../logger'
 import { Util } from '../utils/Util'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
@@ -10,7 +12,7 @@ export class YouTubeChatCrawler extends EventEmitter {
 
   private logger: winston.Logger
 
-  private headers = {
+  private headers: Record<string, any> = {
     'accept-language': 'en-US,en;q=0.9,vi;q=0.8',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
   }
@@ -108,7 +110,7 @@ export class YouTubeChatCrawler extends EventEmitter {
     return continuation
   }
 
-  private async getLiveChat(continuationData: any) {
+  private async getLiveChat(continuationData: YouTubeLiveChatContinuationData) {
     if (this.isStreaming) {
       this.logger.debug('Get live chat', continuationData)
     } else {
@@ -147,7 +149,7 @@ export class YouTubeChatCrawler extends EventEmitter {
     }
   }
 
-  private getLiveChatWithTimeout(continuationData: any) {
+  private getLiveChatWithTimeout(continuationData: YouTubeLiveChatContinuationData) {
     const timeoutMs = continuationData?.timeoutMs || 0
     if (this.isStreaming) {
       this.logger.debug(`Get live chat in ${timeoutMs}ms`)
@@ -155,7 +157,7 @@ export class YouTubeChatCrawler extends EventEmitter {
     setTimeout(() => this.getLiveChat(continuationData), timeoutMs)
   }
 
-  private handleActions(actions: any[]) {
+  private handleActions(actions: YouTubeAction[]) {
     const newActions = YouTubeUtil.getCleanActions(actions)
     this.emit('actions', newActions)
   }

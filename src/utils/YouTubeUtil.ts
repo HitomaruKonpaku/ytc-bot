@@ -3,6 +3,10 @@ import axios from 'axios'
 import cheerio from 'cheerio'
 import { createHash } from 'crypto'
 import { YouTubeVideoMeta } from '../interfaces/meta/YouTubeVideoMeta.interface'
+import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
+import { YouTubeLiveChatContinuation } from '../interfaces/YouTubeLiveChatContinuation.interface'
+import { YouTubeLiveChatContinuationData } from '../interfaces/YouTubeLiveChatContinuationData.interface'
+import { YouTubeLiveChatRenderer } from '../interfaces/YouTubeLiveChatRenderer.interface'
 import { logger as baseLogger } from '../logger'
 import { Util } from './Util'
 
@@ -137,7 +141,7 @@ export class YouTubeUtil {
     return null
   }
 
-  public static getContinuationData(continuations: any[]): any {
+  public static getContinuationData(continuations: YouTubeLiveChatContinuation[]): YouTubeLiveChatContinuationData {
     const continuationData = continuations
       .map((v) => v?.timedContinuationData || v?.invalidationContinuationData || v?.liveChatReplayContinuationData)
       .find((v) => v)
@@ -148,7 +152,7 @@ export class YouTubeUtil {
     return continuationData
   }
 
-  public static getCleanActions(obj: any) {
+  public static getCleanActions(obj: YouTubeAction[]) {
     if (!obj) {
       return obj
     }
@@ -159,7 +163,7 @@ export class YouTubeUtil {
         'contextMenuEndpoint',
         'trackingParams',
       ]
-      const newObj = JSON.parse(JSON.stringify(obj, (key, value) => (!keys.includes(key) ? value : undefined)))
+      const newObj = JSON.parse(JSON.stringify(obj, (key, value) => (!keys.includes(key) ? value : undefined))) as YouTubeAction[]
       return newObj
     } catch (error) {
       logger.error(`getCleanActions: ${error.message}`, obj)
@@ -167,18 +171,18 @@ export class YouTubeUtil {
     }
   }
 
-  public static getChatAuthorChannelId(renderer: any): string {
+  public static getChatAuthorChannelId(renderer: YouTubeLiveChatRenderer): string {
     const text = renderer.authorExternalChannelId || null
     return text
   }
 
-  public static getChatAuthorName(renderer: any): string {
+  public static getChatAuthorName(renderer: YouTubeLiveChatRenderer): string {
     const text = renderer.authorName?.simpleText || null
     return text
   }
 
-  public static getChatMessage(renderer: any): string {
-    const runs = renderer.message?.runs as any[]
+  public static getChatMessage(renderer: YouTubeLiveChatRenderer): string {
+    const runs = renderer.message?.runs
     if (!runs?.length) {
       return ''
     }
@@ -193,7 +197,7 @@ export class YouTubeUtil {
     return text
   }
 
-  public static getChatPurchaseAmount(renderer: any): string {
+  public static getChatPurchaseAmount(renderer: YouTubeLiveChatRenderer): string {
     const text = renderer.purchaseAmountText?.simpleText || null
     return text
   }

@@ -1,5 +1,6 @@
 import winston from 'winston'
 import { YouTubeChat } from '../classes/YouTubeChat'
+import { YouTubeLiveChatRenderer } from '../interfaces/YouTubeLiveChatRenderer.interface'
 import { logger as baseLogger } from '../logger'
 import { Util } from '../utils/Util'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
@@ -80,15 +81,15 @@ class DiscordYtc {
     ytChat.on('videoEnd', () => {
       this.removeYtChat(ytChat.id)
     })
-    ytChat.on('liveChatTextMessageRenderer', (renderer: any) => {
+    ytChat.on('liveChatTextMessageRenderer', (renderer: YouTubeLiveChatRenderer) => {
       this.handleLiveChatTextMessageRenderer(ytChat, renderer)
     })
-    // ytChat.on('liveChatPaidMessageRenderer', (renderer: any) => {
+    // ytChat.on('liveChatPaidMessageRenderer', (renderer: YouTubeLiveChatRenderer) => {
     //   // TODO
     // })
   }
 
-  private async handleLiveChatTextMessageRenderer(ytChat: YouTubeChat, renderer: any) {
+  private async handleLiveChatTextMessageRenderer(ytChat: YouTubeChat, renderer: YouTubeLiveChatRenderer) {
     if (!this.ytChats[ytChat.id]) {
       return
     }
