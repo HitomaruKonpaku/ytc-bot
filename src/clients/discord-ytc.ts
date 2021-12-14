@@ -1,6 +1,6 @@
 import winston from 'winston'
 import { YouTubeChat } from '../classes/YouTubeChat'
-import { YouTubeLiveChatRenderer } from '../interfaces/YouTubeLiveChatRenderer.interface'
+import { YouTubeLiveChatMessageRenderer } from '../interfaces/YouTubeLiveChatMessageRenderer.interface'
 import { logger as baseLogger } from '../logger'
 import { Util } from '../utils/Util'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
@@ -81,7 +81,7 @@ class DiscordYtc {
     ytChat.on('videoEnd', () => {
       this.removeYtChat(ytChat.id)
     })
-    ytChat.on('liveChatTextMessageRenderer', (renderer: YouTubeLiveChatRenderer) => {
+    ytChat.on('liveChatTextMessageRenderer', (renderer: YouTubeLiveChatMessageRenderer) => {
       this.handleLiveChatTextMessageRenderer(ytChat, renderer)
     })
     // ytChat.on('liveChatPaidMessageRenderer', (renderer: YouTubeLiveChatRenderer) => {
@@ -89,7 +89,7 @@ class DiscordYtc {
     // })
   }
 
-  private async handleLiveChatTextMessageRenderer(ytChat: YouTubeChat, renderer: YouTubeLiveChatRenderer) {
+  private async handleLiveChatTextMessageRenderer(ytChat: YouTubeChat, renderer: YouTubeLiveChatMessageRenderer) {
     if (!this.ytChats[ytChat.id]) {
       return
     }
@@ -100,20 +100,20 @@ class DiscordYtc {
 
     const authorChannelId = YouTubeUtil.getChatAuthorChannelId(renderer)
     const authorName = YouTubeUtil.getChatAuthorName(renderer)
-    const blockChannels = this.config.blockChannels || []
-    if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
-      return
-    }
-    const allowChannels = this.config.channels?.[ytChat.ytVideoMeta.channelId]?.allowChannels || []
-    if (allowChannels.length && !allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
-      return
-    }
+      const blockChannels = this.config.blockChannels || []
+      if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+        return
+      }
+      const allowChannels = this.config.channels?.[ytChat.ytVideoMeta.channelId]?.allowChannels || []
+      if (allowChannels.length && !allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+        return
+      }
 
     const message = YouTubeUtil.getChatMessage(renderer)
-    const keywords = this.config.keywords || []
-    if (message && keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
-      return
-    }
+      const keywords = this.config.keywords || []
+      if (message && keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
+        return
+      }
 
     const content = `💬 ${authorName}: ${message}`.trim()
     this.logger.debug('Message info', { authorName, authorChannelId, msg: message })

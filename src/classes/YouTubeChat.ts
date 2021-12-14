@@ -1,7 +1,7 @@
 import EventEmitter from 'events'
 import winston from 'winston'
 import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
-import { YouTubeLiveChatRenderer } from '../interfaces/YouTubeLiveChatRenderer.interface'
+import { YouTubeLiveChatMessageRenderer } from '../interfaces/YouTubeLiveChatMessageRenderer.interface'
 import { logger as baseLogger } from '../logger'
 import { YouTubeChatActionHandler } from './YouTubeChatActionHandler'
 import { YouTubeChatCrawler } from './YouTubeChatCrawler'
@@ -50,10 +50,10 @@ export class YouTubeChat extends EventEmitter {
   }
 
   private initActionHandlerEventHanders() {
-    this.actionHandler.on('liveChatTextMessageRenderer', (renderer: YouTubeLiveChatRenderer) => {
+    this.actionHandler.on('liveChatTextMessageRenderer', (renderer: YouTubeLiveChatMessageRenderer) => {
       this.emit('liveChatTextMessageRenderer', renderer)
     })
-    this.actionHandler.on('liveChatPaidMessageRenderer', (renderer: YouTubeLiveChatRenderer) => {
+    this.actionHandler.on('liveChatPaidMessageRenderer', (renderer: YouTubeLiveChatMessageRenderer) => {
       this.emit('liveChatPaidMessageRenderer', renderer)
     })
   }

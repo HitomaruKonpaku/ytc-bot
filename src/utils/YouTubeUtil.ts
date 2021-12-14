@@ -6,7 +6,7 @@ import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
 import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
 import { YouTubeLiveChatContinuation } from '../interfaces/YouTubeLiveChatContinuation.interface'
 import { YouTubeLiveChatContinuationData } from '../interfaces/YouTubeLiveChatContinuationData.interface'
-import { YouTubeLiveChatRenderer } from '../interfaces/YouTubeLiveChatRenderer.interface'
+import { YouTubeLiveChatMessageRenderer } from '../interfaces/YouTubeLiveChatMessageRenderer.interface'
 import { logger as baseLogger } from '../logger'
 import { Util } from './Util'
 
@@ -171,17 +171,17 @@ export class YouTubeUtil {
     }
   }
 
-  public static getChatAuthorChannelId(renderer: YouTubeLiveChatRenderer): string {
+  public static getChatAuthorChannelId(renderer: YouTubeLiveChatMessageRenderer): string {
     const text = renderer.authorExternalChannelId || null
     return text
   }
 
-  public static getChatAuthorName(renderer: YouTubeLiveChatRenderer): string {
+  public static getChatAuthorName(renderer: YouTubeLiveChatMessageRenderer): string {
     const text = renderer.authorName?.simpleText || null
     return text
   }
 
-  public static getChatMessage(renderer: YouTubeLiveChatRenderer): string {
+  public static getChatMessage(renderer: YouTubeLiveChatMessageRenderer): string {
     const runs = renderer.message?.runs
     if (!runs?.length) {
       return ''
@@ -197,7 +197,7 @@ export class YouTubeUtil {
     return text
   }
 
-  public static getChatPurchaseAmount(renderer: YouTubeLiveChatRenderer): string {
+  public static getChatPurchaseAmount(renderer: YouTubeLiveChatMessageRenderer): string {
     const text = renderer.purchaseAmountText?.simpleText || null
     return text
   }

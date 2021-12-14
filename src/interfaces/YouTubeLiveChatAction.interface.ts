@@ -1,12 +1,12 @@
-import { YouTubeLiveChatRenderer } from './YouTubeLiveChatRenderer.interface'
+import { YouTubeLiveChatMessageRenderer } from './YouTubeLiveChatMessageRenderer.interface'
 
 export interface YouTubeAction {
   replayChatItemAction?: any
 
   addChatItemAction?: {
     item?: {
-      liveChatTextMessageRenderer?: YouTubeLiveChatRenderer
-      liveChatPaidMessageRenderer?: YouTubeLiveChatRenderer
+      liveChatTextMessageRenderer?: YouTubeLiveChatMessageRenderer
+      liveChatPaidMessageRenderer?: YouTubeLiveChatMessageRenderer
     }
   }
 
