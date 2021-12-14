@@ -101,7 +101,7 @@ class DiscordYtc {
     const authorChannelId = YouTubeUtil.getChatAuthorChannelId(renderer)
     const authorName = YouTubeUtil.getChatAuthorName(renderer)
     const message = YouTubeUtil.getChatMessage(renderer)
-    if (authorChannelId !== ytChat.ytVideoMeta.channelId) {
+    if (authorChannelId !== ytChat.ytVideoMeta.channelId || !this.config.allowChannels?.some?.((v) => v.id === authorChannelId)) {
       const blockChannels = this.config.blockChannels || []
       if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
         return
