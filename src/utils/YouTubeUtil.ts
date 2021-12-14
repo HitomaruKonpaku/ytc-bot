@@ -201,4 +201,10 @@ export class YouTubeUtil {
     const text = renderer.purchaseAmountText?.simpleText || null
     return text
   }
+
+  public static isChatModerator(renderer: YouTubeLiveChatMessageRenderer) {
+    const isValid = renderer.authorBadges
+      ?.some((v) => v.liveChatAuthorBadgeRenderer?.icon?.iconType === 'MODERATOR')
+    return isValid
+  }
 }

@@ -56,5 +56,8 @@ export class YouTubeChat extends EventEmitter {
     this.actionHandler.on('liveChatPaidMessageRenderer', (renderer: YouTubeLiveChatMessageRenderer) => {
       this.emit('liveChatPaidMessageRenderer', renderer)
     })
+    this.actionHandler.on('liveChatBannerRenderer', (bannerRenderer: any) => {
+      this.emit('liveChatBannerRenderer', bannerRenderer)
+    })
   }
 }

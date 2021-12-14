@@ -176,11 +176,14 @@ export class YouTubeChatActionHandler extends EventEmitter {
     try {
       const authorName = YouTubeUtil.getChatAuthorName(renderer)
       const message = YouTubeUtil.getChatMessage(renderer)
-      const line = `${authorName}: ${message}`.trim()
-      this.logger.warn(`[PINNED MSG] ${line}`)
+      const isModerator = YouTubeUtil.isChatModerator(renderer)
+      const line = `${!isModerator || '🔧'}📌 ${authorName}: ${message}`.trim()
+      this.logger.warn(line)
+      this.appendFile(this.msgOutFile, line)
     } catch (error) {
       this.logger.error(`handleAddBannerToLiveChatCommand: ${error.message}`)
     }
+    this.emit('liveChatBannerRenderer', bannerRenderer.liveChatBannerRenderer)
   }
 
   /**
