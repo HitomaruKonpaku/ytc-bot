@@ -5,6 +5,7 @@ import winston from 'winston'
 import { APP_CHAT_DIR } from '../constants/app.constant'
 import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
 import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
+import { YouTubeLiveChatMessageRenderer } from '../interfaces/YouTubeLiveChatMessageRenderer.interface'
 import { logger as baseLogger } from '../logger'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
 
@@ -19,6 +20,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
   private allActionCount = 0
   private textMessageCount = 0
   private paidMessageCount = 0
+  private memberCount = 0
 
   constructor(
     public id: string,
@@ -35,9 +37,9 @@ export class YouTubeChatActionHandler extends EventEmitter {
       return
     }
     this.allActionCount += newActionCount
-    this.logger.debug(`Found ${newActionCount}/${this.allActionCount} actions`)
+    this.logger.silly(`Found ${newActionCount}/${this.allActionCount} actions`)
     actions.forEach((action) => this.handleAction(action))
-    this.logger.debug(`Track ${this.textMessageCount} messages, ${this.paidMessageCount} SuperChats`)
+    this.logger.debug(`Track ${this.textMessageCount} messages, ${this.paidMessageCount} SuperChats, ${this.memberCount} new members`)
   }
 
   private initOutFiles() {
@@ -134,9 +136,14 @@ export class YouTubeChatActionHandler extends EventEmitter {
       this.handleLiveChatPaidMessageRenderer(renderer)
       this.emit('liveChatPaidMessageRenderer', renderer)
     }
+    if (item.liveChatMembershipItemRenderer) {
+      const renderer = item.liveChatMembershipItemRenderer
+      this.handleLiveChatMembershipItemRenderer(renderer)
+      this.emit('liveChatMembershipItemRenderer', renderer)
+    }
   }
 
-  private handleLiveChatTextMessageRenderer(renderer: any) {
+  private handleLiveChatTextMessageRenderer(renderer: YouTubeLiveChatMessageRenderer) {
     this.textMessageCount += 1
     try {
       const authorName = YouTubeUtil.getChatAuthorName(renderer)
@@ -148,7 +155,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
     }
   }
 
-  private handleLiveChatPaidMessageRenderer(renderer: any) {
+  private handleLiveChatPaidMessageRenderer(renderer: YouTubeLiveChatMessageRenderer) {
     this.paidMessageCount += 1
     try {
       const authorName = YouTubeUtil.getChatAuthorName(renderer)
@@ -158,6 +165,12 @@ export class YouTubeChatActionHandler extends EventEmitter {
       this.appendFile(this.scOutFile, line)
     } catch (error) {
       this.logger.error(`handleLiveChatPaidMessageRenderer: ${error.message}`, { renderer })
+    }
+  }
+
+  private handleLiveChatMembershipItemRenderer(renderer: YouTubeLiveChatMessageRenderer) {
+    if (!renderer.message) {
+      this.memberCount += 1
     }
   }
 
