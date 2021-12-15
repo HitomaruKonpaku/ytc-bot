@@ -106,6 +106,7 @@ class DiscordYtc {
     const authorChannelId = YouTubeUtil.getChatAuthorChannelId(renderer)
     const authorName = YouTubeUtil.getChatAuthorName(renderer)
     const message = YouTubeUtil.getChatMessage(renderer)
+    let isTranslation = false
     if (authorChannelId !== ytChat.ytVideoMeta.channelId && !this.config.allowChannels?.some?.((v) => v.id === authorChannelId)) {
       const blockChannels = this.config.blockChannels || []
       if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
@@ -119,9 +120,10 @@ class DiscordYtc {
       if (keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
         return
       }
+      isTranslation = true
     }
 
-    const content = YouTubeUtil.buildMessageContent(renderer, { logger: true, isTranslation: true })
+    const content = YouTubeUtil.buildMessageContent(renderer, { logger: true, isTranslation })
     this.logger.verbose(`[${ytChat.id}] [MSG] ${content}`)
     channelIds.forEach((channelId) => {
       discord.sendToChannel(channelId, { content })
