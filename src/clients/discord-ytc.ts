@@ -116,7 +116,7 @@ class DiscordYtc {
         return
       }
       const keywords = this.config.keywords || []
-      if (message && keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
+      if (keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
         return
       }
     }
