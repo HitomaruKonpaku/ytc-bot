@@ -10,7 +10,7 @@ export class DiscordUtil {
 
   public static async replyInteractionInsufficientPermissions(interaction: CommandInteraction) {
     try {
-      await interaction.editReply('Insufficient Permissions')
+      await interaction.editReply('❌ Insufficient Permissions')
       setTimeout(() => this.deleteInteraction(interaction), 10000)
     } catch (error) {
       logger.error(`replyInteractionInsufficientPermissions: ${error.message}`)
