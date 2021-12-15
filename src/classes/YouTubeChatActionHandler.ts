@@ -4,7 +4,8 @@ import path from 'path'
 import winston from 'winston'
 import { APP_CHAT_DIR } from '../constants/app.constant'
 import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
-import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
+import { YouTubeLiveChatAction } from '../interfaces/YouTubeLiveChatAction.interface'
+import { YouTubeLiveChatItem } from '../interfaces/YouTubeLiveChatItem.interface'
 import { YouTubeLiveChatMessageRenderer } from '../interfaces/YouTubeLiveChatMessageRenderer.interface'
 import { logger as baseLogger } from '../logger'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
@@ -60,7 +61,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
     this.logger.info(`Writing chat sc to "${this.scOutFile}"`)
   }
 
-  private handleAction(action: YouTubeAction) {
+  private handleAction(action: YouTubeLiveChatAction) {
     try {
       if (action.replayChatItemAction) {
         this.handleReplayChatItemAction(action.replayChatItemAction)
@@ -119,7 +120,7 @@ export class YouTubeChatActionHandler extends EventEmitter {
   }
 
   private handleAddChatItemAction(action: any) {
-    const item = action?.item
+    const item = action?.item as YouTubeLiveChatItem
     if (!item) {
       return
     }

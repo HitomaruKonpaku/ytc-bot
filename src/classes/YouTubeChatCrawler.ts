@@ -1,7 +1,7 @@
 import EventEmitter from 'events'
 import winston from 'winston'
 import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
-import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
+import { YouTubeLiveChatAction } from '../interfaces/YouTubeLiveChatAction.interface'
 import { YouTubeLiveChatContinuationData } from '../interfaces/YouTubeLiveChatContinuationData.interface'
 import { logger as baseLogger } from '../logger'
 import { Util } from '../utils/Util'
@@ -157,7 +157,7 @@ export class YouTubeChatCrawler extends EventEmitter {
     setTimeout(() => this.getLiveChat(continuationData), timeoutMs)
   }
 
-  private handleActions(actions: YouTubeAction[]) {
+  private handleActions(actions: YouTubeLiveChatAction[]) {
     const newActions = YouTubeUtil.getCleanActions(actions)
     this.emit('actions', newActions)
   }

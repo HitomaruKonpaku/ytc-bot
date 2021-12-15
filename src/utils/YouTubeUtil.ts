@@ -3,7 +3,7 @@ import axios from 'axios'
 import cheerio from 'cheerio'
 import { createHash } from 'crypto'
 import { YouTubeMetaVideo } from '../interfaces/meta/YouTubeMetaVideo.interface'
-import { YouTubeAction } from '../interfaces/YouTubeLiveChatAction.interface'
+import { YouTubeLiveChatAction } from '../interfaces/YouTubeLiveChatAction.interface'
 import { YouTubeLiveChatContinuation } from '../interfaces/YouTubeLiveChatContinuation.interface'
 import { YouTubeLiveChatContinuationData } from '../interfaces/YouTubeLiveChatContinuationData.interface'
 import { YouTubeLiveChatMessageRenderer } from '../interfaces/YouTubeLiveChatMessageRenderer.interface'
@@ -152,7 +152,7 @@ export class YouTubeUtil {
     return continuationData
   }
 
-  public static getCleanActions(obj: YouTubeAction[]) {
+  public static getCleanActions(obj: YouTubeLiveChatAction[]) {
     if (!obj) {
       return obj
     }
@@ -163,7 +163,7 @@ export class YouTubeUtil {
         'contextMenuEndpoint',
         'trackingParams',
       ]
-      const newObj = JSON.parse(JSON.stringify(obj, (key, value) => (!keys.includes(key) ? value : undefined))) as YouTubeAction[]
+      const newObj = JSON.parse(JSON.stringify(obj, (key, value) => (!keys.includes(key) ? value : undefined))) as YouTubeLiveChatAction[]
       return newObj
     } catch (error) {
       logger.error(`getCleanActions: ${error.message}`, obj)
