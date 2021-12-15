@@ -54,7 +54,7 @@ export class YouTubeChatCrawler extends EventEmitter {
   }
 
   private updateLiveChatHeaders() {
-    if (!this.isMembersOnly || !this.isStreaming) {
+    if (!this.isMembersOnly) {
       return
     }
     Object.assign(this.headers, {
