@@ -146,10 +146,8 @@ export class YouTubeChatActionHandler extends EventEmitter {
   private handleLiveChatTextMessageRenderer(renderer: YouTubeLiveChatMessageRenderer) {
     this.textMessageCount += 1
     try {
-      const authorName = YouTubeUtil.getChatAuthorName(renderer)
-      const message = YouTubeUtil.getChatMessage(renderer)
-      const line = `${authorName}: ${message}`.trim()
-      this.appendFile(this.msgOutFile, line)
+      const content = YouTubeUtil.buildMessageContent(renderer)
+      this.appendFile(this.msgOutFile, content)
     } catch (error) {
       this.logger.error(`handleLiveChatTextMessageRenderer: ${error.message}`, { renderer })
     }
@@ -158,11 +156,8 @@ export class YouTubeChatActionHandler extends EventEmitter {
   private handleLiveChatPaidMessageRenderer(renderer: YouTubeLiveChatMessageRenderer) {
     this.paidMessageCount += 1
     try {
-      const authorName = YouTubeUtil.getChatAuthorName(renderer)
-      const message = YouTubeUtil.getChatMessage(renderer)
-      const purchaseAmount = YouTubeUtil.getChatPurchaseAmount(renderer)
-      const line = `${authorName}: [${purchaseAmount}] ${message}`.trim()
-      this.appendFile(this.scOutFile, line)
+      const content = YouTubeUtil.buildMessageContent(renderer)
+      this.appendFile(this.scOutFile, content)
     } catch (error) {
       this.logger.error(`handleLiveChatPaidMessageRenderer: ${error.message}`, { renderer })
     }
@@ -187,12 +182,9 @@ export class YouTubeChatActionHandler extends EventEmitter {
       return
     }
     try {
-      const authorName = YouTubeUtil.getChatAuthorName(renderer)
-      const message = YouTubeUtil.getChatMessage(renderer)
-      const isModerator = YouTubeUtil.isChatModerator(renderer)
-      const line = `${!isModerator || '🔧'}📌 ${authorName}: ${message}`.trim()
-      this.logger.warn(line)
-      this.appendFile(this.msgOutFile, line)
+      const content = YouTubeUtil.buildMessageContent(renderer, { isPinned: true })
+      this.logger.warn(content)
+      this.appendFile(this.msgOutFile, content)
     } catch (error) {
       this.logger.error(`handleAddBannerToLiveChatCommand: ${error.message}`)
     }

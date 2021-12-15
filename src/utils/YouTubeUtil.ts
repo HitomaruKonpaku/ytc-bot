@@ -202,9 +202,53 @@ export class YouTubeUtil {
     return text
   }
 
-  public static isChatModerator(renderer: YouTubeLiveChatMessageRenderer) {
-    const isValid = renderer.authorBadges
-      ?.some((v) => v.liveChatAuthorBadgeRenderer?.icon?.iconType === 'MODERATOR')
+  public static isChannelOwner(renderer: YouTubeLiveChatMessageRenderer) {
+    return this.hasBadgeType(renderer, 'OWNER')
+  }
+
+  public static isChannelModerator(renderer: YouTubeLiveChatMessageRenderer) {
+    return this.hasBadgeType(renderer, 'MODERATOR')
+  }
+
+  public static hasBadgeType(renderer: YouTubeLiveChatMessageRenderer, type: string) {
+    const isValid = !!renderer.authorBadges?.some((v) => v.liveChatAuthorBadgeRenderer?.icon?.iconType === type.toUpperCase())
     return isValid
+  }
+
+  public static buildMessageContent(
+    renderer: YouTubeLiveChatMessageRenderer,
+    options?: {
+      logger?: boolean,
+      isPinned?: boolean,
+      isTranslation?: boolean,
+    },
+  ) {
+    let content = ''
+    if (this.isChannelOwner(renderer)) {
+      content += '▶️'
+    }
+    if (this.isChannelModerator(renderer)) {
+      content += '🔧'
+    }
+    if (options?.isPinned) {
+      content += '📌'
+    }
+    if (options?.isTranslation) {
+      content += '💬'
+    }
+    content += ` ${this.getChatAuthorName(renderer)}: `
+    if (this.getChatPurchaseAmount(renderer)) {
+      content += `[${this.getChatPurchaseAmount(renderer)}] `
+    }
+    content += this.getChatMessage(renderer)
+    content = content.trim()
+    if (options?.logger) {
+      logger.debug('buildMessageContent', {
+        authorChannelId: this.getChatAuthorChannelId(renderer),
+        authorChannelName: this.getChatAuthorName(renderer),
+        content,
+      })
+    }
+    return content
   }
 }

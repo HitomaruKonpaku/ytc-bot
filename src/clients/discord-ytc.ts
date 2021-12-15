@@ -121,8 +121,7 @@ class DiscordYtc {
       }
     }
 
-    const content = `💬 ${authorName}: ${message}`.trim()
-    this.logger.debug('Message info', { authorName, authorChannelId, msg: message })
+    const content = YouTubeUtil.buildMessageContent(renderer, { logger: true, isTranslation: true })
     this.logger.verbose(`[${ytChat.id}] [MSG] ${content}`)
     channelIds.forEach((channelId) => {
       discord.sendToChannel(channelId, { content })
@@ -142,12 +141,7 @@ class DiscordYtc {
       return
     }
 
-    const authorChannelId = YouTubeUtil.getChatAuthorChannelId(renderer)
-    const authorName = YouTubeUtil.getChatAuthorName(renderer)
-    const message = YouTubeUtil.getChatMessage(renderer)
-    const isModerator = YouTubeUtil.isChatModerator(renderer)
-    const content = `${!isModerator || '🔧'}📌 ${authorName}: ${message}`.trim()
-    this.logger.debug('Message info', { authorName, authorChannelId, msg: message })
+    const content = YouTubeUtil.buildMessageContent(renderer, { logger: true, isPinned: true })
     this.logger.verbose(`[${ytChat.id}] [MSG] ${content}`)
     channelIds.forEach((channelId) => {
       discord.sendToChannel(channelId, { content })
