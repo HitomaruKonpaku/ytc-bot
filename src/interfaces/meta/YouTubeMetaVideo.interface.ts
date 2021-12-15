@@ -1,4 +1,5 @@
 import { YouTubeMetaAuthor } from './YouTubeMetaAuthor.interface'
+import { YouTubeMetaPublication } from './YouTubeMetaPublication.interface'
 
 export interface YouTubeMetaVideo {
   url?: string
@@ -21,4 +22,5 @@ export interface YouTubeMetaVideo {
   datePublished?: string
   uploadDate?: string
   genre?: string
+  publication?: YouTubeMetaPublication
 }
