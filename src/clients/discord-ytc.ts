@@ -106,21 +106,21 @@ class DiscordYtc {
     const authorChannelId = YouTubeUtil.getChatAuthorChannelId(renderer)
     const authorName = YouTubeUtil.getChatAuthorName(renderer)
     const message = YouTubeUtil.getChatMessage(renderer)
-    let isTranslation = false
+    const isTranslation = Array.from<string>(this.config.keywords || [])
+      .some((v) => message.toLowerCase().includes(v.toLowerCase()))
+
     if (authorChannelId !== ytChat.ytVideoMeta.channelId && !this.config.allowChannels?.some?.((v) => v.id === authorChannelId)) {
       const blockChannels = this.config.blockChannels || []
-      if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+      if (blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
         return
       }
       const allowChannels = this.config.channels?.[ytChat.ytVideoMeta.channelId]?.allowChannels || []
-      if (allowChannels.length && !allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+      if (!allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
         return
       }
-      const keywords = this.config.keywords || []
-      if (keywords.length && !keywords.some((v) => message.toLowerCase().includes(v.toLowerCase()))) {
+      if (!isTranslation) {
         return
       }
-      isTranslation = true
     }
 
     const content = YouTubeUtil.buildMessageContent(renderer, { logger: true, isTranslation })
