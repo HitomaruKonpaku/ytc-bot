@@ -111,11 +111,11 @@ class DiscordYtc {
 
     if (authorChannelId !== ytChat.ytVideoMeta.channelId && !this.config.allowChannels?.some?.((v) => v.id === authorChannelId)) {
       const blockChannels = this.config.blockChannels || []
-      if (blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+      if (blockChannels.length && blockChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
         return
       }
       const allowChannels = this.config.channels?.[ytChat.ytVideoMeta.channelId]?.allowChannels || []
-      if (!allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
+      if (allowChannels.length && !allowChannels.some((v) => v.id === authorChannelId || v.name === authorName)) {
         return
       }
       if (!isTranslation) {
