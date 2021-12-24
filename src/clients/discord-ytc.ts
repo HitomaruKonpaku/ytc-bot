@@ -35,11 +35,12 @@ class DiscordYtc {
   public removeChatFromChannel(url: string, channelId: string) {
     this.logger.info('removeChatFromChannel', { url, channelId })
     const id = YouTubeUtil.getVideoId(url)
-    this.ytChats[id].channelIds.delete(channelId)
+    this.removeYtChatFromChannel(id, channelId)
   }
 
   private async addYtChat(id: string, channelId?: string) {
     if (this.ytChats[id]) {
+      this.addYtChatToChannel(id, channelId)
       return
     }
 
@@ -49,11 +50,7 @@ class DiscordYtc {
       ytChat,
       channelIds: new Set(),
     }
-
-    if (channelId) {
-      this.ytChats[id].channelIds.add(channelId)
-    }
-
+    this.addYtChatToChannel(id, channelId)
     this.initYouTubeChatEventHandlers(ytChat)
 
     try {
@@ -71,6 +68,24 @@ class DiscordYtc {
     }
     this.logger.info(`removeYtChat: ${id}`)
     delete this.ytChats[id]
+  }
+
+  private addYtChatToChannel(id: string, channelId: string) {
+    const ytChat = this.ytChats[id]
+    if (!ytChat || !channelId) {
+      return
+    }
+    this.logger.info('addYtChatToChannel', { id, channelId })
+    ytChat.channelIds.add(channelId)
+  }
+
+  private removeYtChatFromChannel(id: string, channelId: string) {
+    const ytChat = this.ytChats[id]
+    if (!ytChat || !channelId) {
+      return
+    }
+    this.logger.info('removeYtChatFromChannel', { id, channelId })
+    ytChat.channelIds.delete(channelId)
   }
 
   private initYouTubeChatEventHandlers(ytChat: YouTubeChat) {
