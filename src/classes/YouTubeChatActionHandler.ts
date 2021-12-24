@@ -38,7 +38,9 @@ export class YouTubeChatActionHandler extends EventEmitter {
       return
     }
     this.allActionCount += newActionCount
-    this.logger.silly(`Found ${newActionCount}/${this.allActionCount} actions`)
+    if (!(newActionCount < 2 && this.ytVideoMeta.publication?.isLiveBroadcast && this.ytVideoMeta.publication?.endDate)) {
+      this.logger.silly(`Found ${newActionCount}/${this.allActionCount} actions`)
+    }
     actions.forEach((action) => this.handleAction(action))
     this.logger.debug(`Track ${this.textMessageCount} messages, ${this.paidMessageCount} SuperChats, ${this.memberCount} new members`)
   }
