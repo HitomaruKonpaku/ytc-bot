@@ -1,15 +1,14 @@
 import winston from 'winston'
-import { YouTubeChat } from '../classes/YouTubeChat'
 import { YouTubeLiveChatMessageRenderer } from '../interfaces/YouTubeLiveChatMessageRenderer.interface'
 import { logger as baseLogger } from '../logger'
-import { Util } from '../utils/Util'
+import { configManager } from '../modules/ConfigManager'
+import { YouTubeChat } from '../modules/YouTubeChat'
 import { YouTubeUtil } from '../utils/YouTubeUtil'
 import { discord } from './discord'
 
 class DiscordYtc {
   private logger: winston.Logger
 
-  private config: Record<string, any>
   private ytChats: Record<string, {
     ytChat: YouTubeChat,
     channelIds: Set<string>,
@@ -17,7 +16,11 @@ class DiscordYtc {
 
   constructor() {
     this.logger = baseLogger.child({ label: '[DiscordYtc]' })
-    this.config = Util.getConfig().ytChat || {}
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private get config() {
+    return configManager.config.ytChat
   }
 
   public async downloadChat(url: string) {

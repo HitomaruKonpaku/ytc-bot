@@ -2,6 +2,7 @@ import { program } from 'commander'
 import 'dotenv/config'
 import { discord } from './clients/discord'
 import { logger } from './logger'
+import { configManager } from './modules/ConfigManager'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json')
@@ -21,6 +22,7 @@ program.action(async (args) => {
     })
   }
 
+  configManager.load()
   await discord.start()
 })
 

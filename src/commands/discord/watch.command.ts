@@ -24,7 +24,7 @@ export class WatchCommand {
 
     try {
       await discordYtc.downloadChat(url)
-      await interaction.editReply(`Watching __**<${YouTubeUtil.getVideoUrl(YouTubeUtil.getVideoId(url))}>**__ chat...`)
+      await interaction.editReply(`Watching __**<${YouTubeUtil.getVideoUrl(YouTubeUtil.getVideoId(url))}>**__`)
     } catch (error) {
       await interaction.editReply(error.message)
     }
