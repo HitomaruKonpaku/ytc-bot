@@ -2,7 +2,9 @@
 
 ## Description
 
-Discord bot to download & relay chat
+Discord bot to download & relay YouTube live chat
+
+Work with ***members only*** chat but cookies are requried
 
 ## Requirements
 
@@ -22,11 +24,15 @@ npm run build
 
   1. Clone `.env.example` and rename to `.env`
   2. Clone `config.example.json` and rename to `config.json`
-  3. Create `cookies.txt` at main folder or run app with `--cookies <FILE_PATH>` ([How to get cookies](https://chrome.google.com/webstore/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid))
+  3. (Optional) Create `cookies.txt` at main folder or run app with `--cookies <FILE_PATH>` ([How to get cookies](https://chrome.google.com/webstore/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid))
   4. Start normally or with `pm2`
 
   ```
   npm start
+  ```
+
+  ```
+  node dist/index
   ```
 
   ```
