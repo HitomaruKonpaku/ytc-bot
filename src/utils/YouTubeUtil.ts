@@ -17,12 +17,12 @@ export class YouTubeUtil {
     return 'https://www.youtube.com'
   }
 
+  /**
+   * @see https://gist.github.com/takien/4077195
+   */
   public static getVideoId(url: string): string {
-    const pattern = /^(?:(?:https:\/\/youtu\.be\/)|(https:\/\/www\.youtube\.com\/watch\?v=)){0,1}[\w-]{11}$/g
-    if (!pattern.test(url)) {
-      throw new Error('Invalid YouTube URL')
-    }
-    const id = url.slice(-11)
+    const arr = url.split(/(vi\/|v%3D|v=|\/v\/|youtu\.be\/|\/embed\/)/)
+    const id = undefined !== arr[2] ? arr[2].split(/[^\w-]/i)[0] : arr[0]
     return id
   }
 
