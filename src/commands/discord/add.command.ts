@@ -12,6 +12,9 @@ export class AddCommand {
       .setName('url')
       .setDescription('YouTube video url or id')
       .setRequired(true))
+    .addStringOption((option) => option
+      .setName('channel_id')
+      .setDescription('Destination channel id'))
 
   public static async execute(interaction: CommandInteraction) {
     await interaction.deferReply()
@@ -21,7 +24,7 @@ export class AddCommand {
     }
 
     const url = interaction.options.getString('url')
-    const { channelId } = interaction
+    const channelId = interaction.options.getString('channel_id') || interaction.channelId
 
     try {
       await discordYtc.addChatToChannel(url, channelId)
