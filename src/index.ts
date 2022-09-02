@@ -1,35 +1,20 @@
-import { program } from 'commander'
+import { NestFactory } from '@nestjs/core'
 import 'dotenv/config'
-import { discord } from './clients/discord'
-import { logger } from './logger'
-import { configManager } from './modules/ConfigManager'
-import { YouTubeChat } from './modules/YouTubeChat'
-import { YouTubeUtil } from './utils/YouTubeUtil'
+import { AppModule } from './app.module'
+import { AppService } from './app.service'
+import { logger, toggleDebugConsole } from './logger'
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pkg = require('../package.json')
+async function bootstrap() {
+  // process.env.NO_COLOR = '1'
 
-program
-  .version(pkg.version)
-  .option('-d, --debug', 'Show debug logs')
-  .option('-c, --cookies <FILE_PATH>', 'File to load cookies, default to ./cookies.txt')
-  .command('download <URL>')
-  .action((url) => {
-    new YouTubeChat(YouTubeUtil.getVideoId(url)).start()
-  })
-
-program.action(async (args) => {
-  if (args.debug) {
-    // eslint-disable-next-line dot-notation
-    const transports = logger.transports.filter((v) => v['name'] === 'console')
-    transports.forEach((transport) => {
-      // eslint-disable-next-line no-param-reassign
-      transport.level = 'silly'
-    })
+  logger.info(Array(50).fill('=').join(''))
+  if (!process.env.NODE_ENV) {
+    toggleDebugConsole()
   }
 
-  configManager.load()
-  await discord.start()
-})
+  const app = await NestFactory.createApplicationContext(AppModule)
+  const appService = app.get(AppService)
+  await appService.start()
+}
 
-program.parse()
+bootstrap()

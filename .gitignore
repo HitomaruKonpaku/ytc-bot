@@ -8,4 +8,5 @@ chats/
 
 .env
 config.json
+config.yaml
 cookies.txt

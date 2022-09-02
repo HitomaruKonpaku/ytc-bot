@@ -1,3 +1,1 @@
-export const APP_CONFIG_PATH = '../../config.json'
-export const APP_CHAT_DIR = '../../chats'
-export const APP_DEFAULT_COOKIES_PATH = '../../cookies.txt'
+export const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36'
