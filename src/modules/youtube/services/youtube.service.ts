@@ -1,9 +1,12 @@
 import { forwardRef, Inject } from '@nestjs/common'
+import axios from 'axios'
 import { Masterchat } from 'masterchat'
 import { baseLogger } from '../../../logger'
 import { ConfigService } from '../../config/services/config.service'
 import { DiscordService } from '../../discord/services/discord.service'
+import { YOUTUBE_ORIGIN } from '../constants/youtube.constant'
 import { YoutubeChat } from '../models/youtube-chat'
+import { YoutubeUtils } from '../utils/youtube.utils'
 import { youtubeChatAddLimiter } from '../youtube.limiter'
 
 export class YoutubeService {
@@ -45,9 +48,31 @@ export class YoutubeService {
   private async getMasterChat(videoIdOrUrl: string) {
     let masterchat = this.chats[videoIdOrUrl]?.masterchat
     if (!masterchat) {
-      masterchat = await Masterchat.init(videoIdOrUrl)
+      masterchat = await Masterchat.init(
+        videoIdOrUrl,
+        { axiosInstance: this.getAxiosInstance() },
+      )
     }
     return masterchat
+  }
+
+  private getAxiosInstance() {
+    const instance = axios.create()
+    const origin = YOUTUBE_ORIGIN
+    const cookies = this.configService.getCookies()
+    const cookie = cookies
+      .map((v) => `${v.name}=${v.value};`)
+      .join(' ')
+    const SAPISID = cookies.find((v) => v.name === 'SAPISID')?.value
+    const authorization = SAPISID
+      ? YoutubeUtils.genAuthToken(SAPISID, origin)
+      : null
+    instance.defaults.headers.common = {
+      authorization,
+      cookie,
+      origin,
+    }
+    return instance
   }
 
   private addChatListeners(chat: YoutubeChat) {
