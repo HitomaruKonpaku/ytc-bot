@@ -1,0 +1,3 @@
+[submodule "src/submodules/masterchat"]
+	path = src/submodules/masterchat
+	url = https://github.com/HitomaruKonpaku/masterchat
