@@ -1,13 +1,13 @@
 import { bold } from 'discord.js'
 import EventEmitter from 'events'
+import { Logger } from 'winston'
+import { baseLogger } from '../../../logger'
 import {
   AddChatItemAction,
   ChatListener,
   Masterchat,
   stringify,
-} from 'masterchat'
-import { Logger } from 'winston'
-import { baseLogger } from '../../../logger'
+} from '../../../submodules/masterchat/src'
 import { ConfigService } from '../../config/services/config.service'
 import { DiscordService } from '../../discord/services/discord.service'
 

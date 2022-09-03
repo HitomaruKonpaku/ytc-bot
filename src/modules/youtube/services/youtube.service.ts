@@ -1,7 +1,7 @@
 import { forwardRef, Inject } from '@nestjs/common'
 import axios from 'axios'
-import { Masterchat } from 'masterchat'
 import { baseLogger } from '../../../logger'
+import { Masterchat } from '../../../submodules/masterchat/src'
 import { ConfigService } from '../../config/services/config.service'
 import { DiscordService } from '../../discord/services/discord.service'
 import { YOUTUBE_ORIGIN } from '../constants/youtube.constant'
