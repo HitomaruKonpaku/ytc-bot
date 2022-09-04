@@ -1,4 +1,4 @@
-import { bold } from 'discord.js'
+import { bold, MessageOptions, MessagePayload } from 'discord.js'
 import EventEmitter from 'events'
 import { Logger } from 'winston'
 import { baseLogger } from '../../../logger'
@@ -62,10 +62,13 @@ export class YoutubeChat extends EventEmitter {
 
     client.on('error', (error) => {
       logger.error(`${error.message}`)
+      this.boardcast(`[${this.videoId}] Error: ${error.message}`)
+      this.emit('end')
     })
 
     client.on('end', (reason) => {
       logger.warn(`End: ${reason}`)
+      this.boardcast(`[${this.videoId}] End: ${reason}`)
       this.emit('end')
     })
 
@@ -123,6 +126,10 @@ export class YoutubeChat extends EventEmitter {
     ].join(' ')
 
     this.logger.debug('boardcastChat', { content })
-    await Promise.allSettled([...this.discordChannelIds].map((channelId) => this.discordService.sendToChannel(channelId, { content })))
+    await this.boardcast({ content })
+  }
+
+  private async boardcast(options: string | MessagePayload | MessageOptions) {
+    await Promise.allSettled([...this.discordChannelIds].map((channelId) => this.discordService.sendToChannel(channelId, options)))
   }
 }
