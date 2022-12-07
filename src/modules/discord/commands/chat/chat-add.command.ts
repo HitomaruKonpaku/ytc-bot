@@ -50,7 +50,7 @@ export class ChatAddCommand extends BaseCommand {
       await interaction.editReply({
         embeds: [{
           title: masterchat.title,
-          description: `**[${masterchat.videoId}](${YoutubeUtils.getVideoUrl(masterchat.videoId)})** chat relay added`,
+          description: `**[${masterchat.videoId}](${YoutubeUtils.getVideoUrl(masterchat.videoId)})** chat relay added to <#${channelId}>`,
           color: 0x1d9bf0,
           author: {
             name: masterchat.channelName || masterchat.channelId,
