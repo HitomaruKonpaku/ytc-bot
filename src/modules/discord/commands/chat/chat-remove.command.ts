@@ -39,6 +39,8 @@ export class ChatRemoveCommand extends BaseCommand {
     }
 
     try {
+      await interaction.client.channels.fetch(channelId)
+
       const masterchat = await this.youtubeService.remove(id, channelId)
       if (!masterchat) {
         await interaction.editReply('Chat not found')
