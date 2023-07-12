@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core'
 import 'dotenv/config'
+import 'module-alias/register'
 import { AppModule } from './app.module'
 import { AppService } from './app.service'
 import { logger, toggleDebugConsole } from './logger'

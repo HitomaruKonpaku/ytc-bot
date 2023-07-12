@@ -1,9 +1,4 @@
 {
-  "exclude": [
-    "node_modules/*",
-    "src/submodules/masterchat/**/*.test.ts",
-    "src/submodules/masterchat/examples",
-  ],
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
@@ -20,5 +15,18 @@
     "importHelpers": false,
     "experimentalDecorators": true,
     "sourceMap": true,
-  }
+    "paths": {
+      "masterchat": [
+        "./src/submodules/masterchat/src"
+      ],
+    },
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules/*",
+    "src/submodules/masterchat/**/*.test.ts",
+    "src/submodules/masterchat/examples",
+  ],
 }

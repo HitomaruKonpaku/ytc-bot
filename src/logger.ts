@@ -1,6 +1,6 @@
 import winston, { format } from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
-import { LOGGER_DATE_PATTERN, LOGGER_DIR } from './constants/logger.constant'
+import { LOGGER_DATE_PATTERN, LOGGER_DIR } from './constant/logger.constant'
 
 function getPrintFormat() {
   return format.printf((info) => {
@@ -8,7 +8,7 @@ function getPrintFormat() {
       info.timestamp,
       [
         `[${info.level}]`,
-        info.context ? `[${info.context}]` : '',
+        info.context ? [info.context].flat().map((v) => `[${v}]`).join(' ') : '',
         info.message,
       ].filter((v) => v).join(' '),
       Object.keys(info.metadata).length ? JSON.stringify(info.metadata) : '',
@@ -73,8 +73,4 @@ function toggleDebugConsole() {
   consoleTransport.level = 'debug'
 }
 
-export {
-  logger,
-  logger as baseLogger,
-  toggleDebugConsole,
-}
+export { logger as baseLogger, logger, toggleDebugConsole }
