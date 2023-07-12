@@ -98,7 +98,7 @@ export class YoutubeService {
       // eslint-disable-next-line no-param-reassign
       videoId = ytc.videoId
     } catch (error) {
-      this.logger.warn(`addChat#error: ${error.message}`, { videoId })
+      this.logger.error(`addChat#error: ${error.message}`, { videoId })
     }
 
     if (!ytc || this.ignoreVideoIds.has(videoId)) {
