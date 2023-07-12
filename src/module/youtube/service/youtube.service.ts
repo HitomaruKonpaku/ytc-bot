@@ -166,7 +166,7 @@ export class YoutubeService {
         && ytc.channelId === chat.authorChannelId,
         // filter user chat
         track.userId === ytc.channelId
-        && track.filterUserId === chat.authorChannelId,
+        && (track.filterUserId === chat.authorChannelId || config.youtube?.pollChannelIds?.includes?.(chat.authorChannelId)),
         // filter user chat from all channel
         !track.userId
         && track.filterUserId === chat.authorChannelId
