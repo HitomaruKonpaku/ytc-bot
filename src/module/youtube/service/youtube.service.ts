@@ -1,4 +1,5 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common'
+import Bottleneck from 'bottleneck'
 import { bold, hideLinkEmbed } from 'discord.js'
 import { AddChatItemAction, EndReason, MasterchatError, stringify, toVideoId } from 'masterchat'
 import Innertube from 'youtubei.js'
@@ -7,6 +8,7 @@ import { Video } from 'youtubei.js/dist/src/parser/nodes'
 import { TrackConfig, config } from '../../../config'
 import { baseLogger } from '../../../logger'
 import { DiscordService } from '../../discord/service/discord.service'
+import { YoutubeErrorVideo } from '../interface/youtube-error-video.interface'
 import { YoutubeChat } from '../model/youtube-chat'
 import { YoutubeUtil } from '../util/youtube.util'
 import { youtubeChannelLimiter, youtubeVideoChatLimiter } from '../youtube.limiter'
@@ -15,9 +17,12 @@ import { youtubeChannelLimiter, youtubeVideoChatLimiter } from '../youtube.limit
 export class YoutubeService {
   private readonly logger = baseLogger.child({ context: YoutubeService.name })
 
+  private readonly innertubeLimiter = new Bottleneck({ maxConcurrent: 1 })
+
+  private readonly chats: Record<string, YoutubeChat> = {}
+  private readonly errorVideos: Record<string, YoutubeErrorVideo> = {}
+
   private yt: Innertube
-  private chats: Record<string, YoutubeChat> = {}
-  private ignoreVideoIds = new Set<string>()
 
   constructor(
     @Inject(forwardRef(() => DiscordService))
@@ -38,7 +43,7 @@ export class YoutubeService {
   // #region init
 
   private async initInnertube() {
-    this.yt = await Innertube.create({})
+    this.yt = this.yt || await Innertube.create({})
   }
 
   // #endregion
@@ -60,6 +65,7 @@ export class YoutubeService {
 
   private async fetchChannel(channelId: string) {
     try {
+      await this.innertubeLimiter.schedule(() => this.initInnertube())
       this.logger.debug('--> fetchChannel', { channelId })
       const channel = await this.yt.getChannel(channelId)
       const videos = await channel.getLiveStreams()
@@ -70,7 +76,7 @@ export class YoutubeService {
       this.logger.debug('<-- fetchChannel', { channelId, count: streams.length })
 
       const limiter = youtubeVideoChatLimiter
-      streams.forEach((v) => limiter.schedule(() => this.addChat(v.id)))
+      streams.forEach((v) => limiter.schedule(() => this.addChat(v.id, v.is_live)))
     } catch (error) {
       this.logger.error(`fetchChannel: ${error.message}`, { channelId })
     }
@@ -80,7 +86,18 @@ export class YoutubeService {
 
   // #region chat
 
-  public async addChat(videoId: string): Promise<YoutubeChat> {
+  public async addChat(videoIdOrUrl: string, isLive?: boolean): Promise<YoutubeChat> {
+    let videoId = toVideoId(videoIdOrUrl)
+    if (isLive) {
+      if (this.errorVideos[videoId]?.code === 'disabled') {
+        delete this.errorVideos[videoId]
+      }
+    }
+
+    if (this.errorVideos[videoId]) {
+      return null
+    }
+
     if (this.chats[videoId]) {
       return this.chats[videoId]
     }
@@ -95,13 +112,16 @@ export class YoutubeService {
           ytc.applyCredentials()
         }
       }
-      // eslint-disable-next-line no-param-reassign
       videoId = ytc.videoId
     } catch (error) {
       this.logger.error(`addChat#error: ${error.message}`, { videoId })
     }
 
-    if (!ytc || this.ignoreVideoIds.has(videoId)) {
+    if (!ytc) {
+      return null
+    }
+
+    if (this.errorVideos[videoId]) {
       return null
     }
 
@@ -112,7 +132,7 @@ export class YoutubeService {
     this.chats[videoId] = ytc
     this.initChatListeners(ytc)
 
-    this.logger.info('addChat#listen', { videoId })
+    this.logger.warn('addChat#listen', { videoId })
     ytc.listen()
 
     return ytc
@@ -129,7 +149,8 @@ export class YoutubeService {
     return ytc
   }
 
-  private removeChat(videoId: string) {
+  private removeChat(videoIdOrUrl: string) {
+    const videoId = toVideoId(videoIdOrUrl)
     this.logger.warn('removeChat', { videoId })
     delete this.chats[videoId]
   }
@@ -141,12 +162,10 @@ export class YoutubeService {
     })
 
     ytc.on('error', (error: MasterchatError) => {
-      if (error.code === 'disabled') {
-        ytc.stop()
-        return
-      }
-      if (error.code === 'membersOnly') {
-        this.ignoreVideoIds.add(ytc.videoId)
+      this.errorVideos[ytc.videoId] = {
+        videoId: ytc.videoId,
+        channelId: ytc.channelId,
+        code: error.code,
       }
       ytc.stop()
     })

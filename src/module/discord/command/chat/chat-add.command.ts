@@ -29,7 +29,7 @@ export class ChatAddCommand extends BaseCommand {
     const id = interaction.options.getString('id')
 
     try {
-      const ytc = await this.youtubeService.addChat(id)
+      const ytc = await this.youtubeService.addChat(id, true)
       if (!ytc) {
         await interaction.editReply('Video not found!')
         return

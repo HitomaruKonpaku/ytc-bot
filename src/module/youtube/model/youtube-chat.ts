@@ -12,8 +12,8 @@ export class YoutubeChat extends Masterchat {
     this.initListeners()
   }
 
-  public static async init(videoId: string) {
-    const ytc = new YoutubeChat(toVideoId(videoId))
+  public static async init(videoIdOrUrl: string) {
+    const ytc = new YoutubeChat(toVideoId(videoIdOrUrl))
     await ytc.populateMetadata()
     return ytc
   }
