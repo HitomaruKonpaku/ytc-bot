@@ -31,6 +31,7 @@ export class YoutubeService {
     setInterval(() => {
       const ids = Object.keys(this.chats)
       this.logger.debug('chats', { count: ids.length, ids })
+      this.logger.debug('errorVideos', { count: Object.keys(this.errorVideos).length })
     }, 60000)
   }
 
