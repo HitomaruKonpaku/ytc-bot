@@ -1,3 +1,4 @@
+import path from 'path'
 import winston, { format } from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 import { LOGGER_DATE_PATTERN, LOGGER_DIR } from './constant/logger.constant'
@@ -112,8 +113,8 @@ const superchatLogger = (videoId: string) => winston.createLogger({
     new winston.transports.File({
       level: 'silly',
       format: format.combine(getPrintFormat()),
-      dirname: LOGGER_DIR,
-      filename: `superchat.${videoId}.log`,
+      dirname: path.join(LOGGER_DIR, 'superchat'),
+      filename: `${videoId}.log`,
     }),
   ],
 })
