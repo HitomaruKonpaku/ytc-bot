@@ -95,6 +95,11 @@ export class YoutubeService {
       if (this.errorVideos[videoId]?.code === 'disabled') {
         delete this.errorVideos[videoId]
       }
+      if (this.errorVideos[videoId]?.code === 'membersOnly') {
+        if (config.youtube?.memberChannelIds?.includes?.(this.errorVideos[videoId].channelId)) {
+          delete this.errorVideos[videoId]
+        }
+      }
     }
 
     if (this.errorVideos[videoId]) {
@@ -110,11 +115,7 @@ export class YoutubeService {
 
     try {
       ytc = await YoutubeChat.init(videoId)
-      if (ytc.isLive && ytc.isMembersOnly) {
-        if (config.youtube?.memberChannelIds?.includes?.(ytc.channelId)) {
-          ytc.applyCredentials()
-        }
-      }
+      this.setChatCredentials(ytc)
       videoId = ytc.videoId
     } catch (error) {
       this.logger.error(`addChat#error: ${error.message}`, { videoId })
@@ -149,6 +150,7 @@ export class YoutubeService {
     }
 
     await ytc.populateMetadata()
+    this.setChatCredentials(ytc)
     return ytc
   }
 
@@ -158,10 +160,27 @@ export class YoutubeService {
     delete this.chats[videoId]
   }
 
+  private setChatCredentials(ytc: YoutubeChat) {
+    if (ytc.isLive && ytc.isMembersOnly) {
+      if (config.youtube?.memberChannelIds?.includes?.(ytc.channelId)) {
+        this.logger.debug('setChatCredentials', { videoId: ytc.videoId })
+        ytc.applyCredentials()
+      }
+    }
+  }
+
   private initChatListeners(ytc: YoutubeChat) {
     ytc.on('end', (reason) => {
       this.handleEnd(ytc, reason)
       this.removeChat(ytc.videoId)
+
+      if (reason === 'aborted') {
+        if (this.errorVideos[ytc.videoId]?.code === 'membersOnly') {
+          if (config.youtube?.memberChannelIds?.includes?.(ytc.channelId)) {
+            this.addChat(ytc.videoId)
+          }
+        }
+      }
     })
 
     ytc.on('error', (error: MasterchatError) => {
