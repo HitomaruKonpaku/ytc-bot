@@ -39,7 +39,7 @@ export class YoutubeChat extends Masterchat {
 
   private initLogger(videoId: string) {
     this.logger = baseLogger.child({ context: [YoutubeChat.name, videoId] })
-    this.chatLogger = chatLogger.child({ context: [videoId] })
+    this.chatLogger = chatLogger.child({ context: [YoutubeChat.name, videoId] })
   }
 
   private initListeners() {

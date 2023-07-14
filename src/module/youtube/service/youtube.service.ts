@@ -30,8 +30,9 @@ export class YoutubeService {
   ) {
     setInterval(() => {
       const ids = Object.keys(this.chats)
+      const errorIds = Object.keys(this.errorVideos)
       this.logger.debug('chats', { count: ids.length, ids })
-      this.logger.debug('errorVideos', { count: Object.keys(this.errorVideos).length })
+      this.logger.debug('errorVideos', { count: errorIds.length, ids: errorIds })
     }, 60000)
   }
 
@@ -74,7 +75,7 @@ export class YoutubeService {
       const streams = videos
         .filter((v: Video) => v.type === 'Video' && (v.is_live || v.is_upcoming))
         .map((v) => v as Video)
-      this.logger.debug('<-- fetchChannel', { channelId, count: streams.length })
+      this.logger.debug('<-- fetchChannel', { channelId, videoCount: streams.length, videoIds: streams.map((v) => v.id) })
 
       const limiter = youtubeVideoChatLimiter
       streams.forEach((v) => limiter.schedule(() => this.addChat(v.id, v.is_live)))
