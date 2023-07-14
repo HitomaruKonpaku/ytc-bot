@@ -94,8 +94,32 @@ const chatLogger = winston.createLogger({
   ],
 })
 
+const superchatLogger = (videoId: string) => winston.createLogger({
+  format: format.combine(
+    format.timestamp(),
+    format.metadata({ fillExcept: ['timestamp', 'level', 'message'] }),
+    format((info) => Object.assign(info, { level: info.level.toUpperCase() }))(),
+    format((info) => {
+      const { metadata } = info
+      if (metadata.context) {
+        Object.assign(info, { context: metadata.context })
+        delete metadata.context
+      }
+      return info
+    })(),
+  ),
+  transports: [
+    new winston.transports.File({
+      level: 'silly',
+      format: format.combine(getPrintFormat()),
+      dirname: LOGGER_DIR,
+      filename: `superchat.${videoId}.log`,
+    }),
+  ],
+})
+
 function toggleDebugConsole() {
   consoleTransport.level = 'debug'
 }
 
-export { logger as baseLogger, chatLogger, logger, toggleDebugConsole }
+export { logger as baseLogger, chatLogger, logger, superchatLogger, toggleDebugConsole }

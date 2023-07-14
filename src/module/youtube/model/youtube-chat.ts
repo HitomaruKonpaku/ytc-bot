@@ -1,12 +1,36 @@
-import { Credentials, Masterchat, MasterchatError, stringify, toVideoId } from 'masterchat'
+import {
+  AddSuperChatItemAction,
+  Credentials,
+  Masterchat,
+  MasterchatError,
+  stringify,
+  toVideoId,
+} from 'masterchat'
 import winston from 'winston'
 
 import { config } from '../../../config'
-import { baseLogger, chatLogger } from '../../../logger'
+import { baseLogger, chatLogger, superchatLogger } from '../../../logger'
+import { Events } from '../interface/youtube-chat.interface'
+import { YoutubeChatUtil } from '../util/youtube-chat.util'
 
+export interface YoutubeChat {
+  on<U extends keyof Events>(event: U, listener: Events[U]): this;
+  once<U extends keyof Events>(event: U, listener: Events[U]): this;
+  addListener<U extends keyof Events>(event: U, listener: Events[U]): this;
+  off<U extends keyof Events>(event: U, listener: Events[U]): this;
+  removeListener<U extends keyof Events>(event: U, listener: Events[U]): this;
+  emit<U extends keyof Events>(
+    event: U,
+    ...args: Parameters<Events[U]>
+  ): boolean;
+}
+
+// eslint-disable-next-line no-redeclare
 export class YoutubeChat extends Masterchat {
   private logger: winston.Logger
   private chatLogger: winston.Logger
+  private chatScLogger: winston.Logger
+  private superchatLogger: winston.Logger
 
   constructor(videoId: string) {
     super(videoId, '')
@@ -38,8 +62,10 @@ export class YoutubeChat extends Masterchat {
   }
 
   private initLogger(videoId: string) {
-    this.logger = baseLogger.child({ context: [YoutubeChat.name, videoId] })
-    this.chatLogger = chatLogger.child({ context: [YoutubeChat.name, videoId] })
+    this.logger = baseLogger.child({ context: ['YTC', videoId] })
+    this.chatLogger = chatLogger.child({ context: ['YTC_', videoId] })
+    this.chatScLogger = chatLogger.child({ context: ['YTSC', videoId] })
+    this.superchatLogger = superchatLogger(videoId).child({ context: ['YTSC'] })
   }
 
   private initListeners() {
@@ -51,26 +77,41 @@ export class YoutubeChat extends Masterchat {
       this.logger.error(`error: ${error.message}`, { code: error.code })
     })
 
-    this.on('chat', (chat) => {
-      const message = stringify(chat.message)
-      const info = [
-        `[${chat.authorName || chat.authorChannelId}]`,
-        message,
-      ].join(' ')
-      this.logger.debug(info)
+    this.on('actions', (actions) => {
+      if (this.listenerCount('superchats') > 0 || this.listenerCount('superchat') > 0) {
+        const chats = actions.filter((action): action is AddSuperChatItemAction => action.type === 'addSuperChatItemAction')
+        this.emit('superchats', chats, this)
+        chats.forEach((chat) => this.emit('superchat', chat, this))
+      }
     })
 
     this.on('chat', (chat) => {
-      if (!config.youtube?.pollChannelIds?.includes?.(chat.authorChannelId)) {
-        return
-      }
-
       const message = stringify(chat.message)
       const info = [
         `[${chat.authorName || chat.authorChannelId}]`,
         message,
-      ].join(' ')
-      this.chatLogger.info(info)
+      ].join(' ').trim()
+      this.logger.debug(info)
+
+      if (config.youtube?.pollChannelIds?.includes?.(chat.authorChannelId)) {
+        this.chatLogger.info(info)
+      }
+    })
+
+    this.on('superchat', (chat) => {
+      const message = stringify(chat.message)
+      const info = [
+        YoutubeChatUtil.toColorEmoji(chat.color),
+        `[${chat.authorName || chat.authorChannelId}]`,
+        `[${chat.currency} ${chat.amount}]`,
+        message,
+      ].join(' ').trim()
+      this.logger.debug(info)
+      this.superchatLogger.info(info)
+
+      if (config.youtube?.pollChannelIds?.includes?.(chat.authorChannelId)) {
+        this.chatScLogger.info(info)
+      }
     })
   }
 }
