@@ -69,8 +69,33 @@ const logger = winston.createLogger({
   ],
 })
 
+const chatLogger = winston.createLogger({
+  format: format.combine(
+    format.timestamp(),
+    format.metadata({ fillExcept: ['timestamp', 'level', 'message'] }),
+    format((info) => Object.assign(info, { level: info.level.toUpperCase() }))(),
+    format((info) => {
+      const { metadata } = info
+      if (metadata.context) {
+        Object.assign(info, { context: metadata.context })
+        delete metadata.context
+      }
+      return info
+    })(),
+  ),
+  transports: [
+    new DailyRotateFile({
+      level: 'silly',
+      format: format.combine(getPrintFormat()),
+      datePattern: LOGGER_DATE_PATTERN,
+      dirname: LOGGER_DIR,
+      filename: 'chat_%DATE%.log',
+    }),
+  ],
+})
+
 function toggleDebugConsole() {
   consoleTransport.level = 'debug'
 }
 
-export { logger as baseLogger, logger, toggleDebugConsole }
+export { logger as baseLogger, chatLogger, logger, toggleDebugConsole }

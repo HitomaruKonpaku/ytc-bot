@@ -1,10 +1,12 @@
 import { Credentials, Masterchat, MasterchatError, stringify, toVideoId } from 'masterchat'
 import winston from 'winston'
 
-import { baseLogger } from '../../../logger'
+import { config } from '../../../config'
+import { baseLogger, chatLogger } from '../../../logger'
 
 export class YoutubeChat extends Masterchat {
   private logger: winston.Logger
+  private chatLogger: winston.Logger
 
   constructor(videoId: string) {
     super(videoId, '')
@@ -37,6 +39,7 @@ export class YoutubeChat extends Masterchat {
 
   private initLogger(videoId: string) {
     this.logger = baseLogger.child({ context: [YoutubeChat.name, videoId] })
+    this.chatLogger = chatLogger.child({ context: [videoId] })
   }
 
   private initListeners() {
@@ -55,6 +58,19 @@ export class YoutubeChat extends Masterchat {
         message,
       ].join(' ')
       this.logger.debug(info)
+    })
+
+    this.on('chat', (chat) => {
+      if (!config.youtube?.pollChannelIds?.includes?.(chat.authorChannelId)) {
+        return
+      }
+
+      const message = stringify(chat.message)
+      const info = [
+        `[${chat.authorName || chat.authorChannelId}]`,
+        message,
+      ].join(' ')
+      this.chatLogger.info(info)
     })
   }
 }
