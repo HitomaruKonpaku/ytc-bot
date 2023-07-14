@@ -1,7 +1,7 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import Bottleneck from 'bottleneck'
 import { bold, hideLinkEmbed } from 'discord.js'
-import { AddChatItemAction, EndReason, MasterchatError, stringify, toVideoId } from 'masterchat'
+import { AddChatItemAction, AddSuperChatItemAction, EndReason, MasterchatError, stringify, toVideoId } from 'masterchat'
 import Innertube from 'youtubei.js'
 import { Video } from 'youtubei.js/dist/src/parser/nodes'
 
@@ -10,6 +10,7 @@ import { baseLogger } from '../../../logger'
 import { DiscordService } from '../../discord/service/discord.service'
 import { YoutubeErrorVideo } from '../interface/youtube-error-video.interface'
 import { YoutubeChat } from '../model/youtube-chat'
+import { YoutubeChatUtil } from '../util/youtube-chat.util'
 import { YoutubeUtil } from '../util/youtube.util'
 import { youtubeChannelLimiter, youtubeVideoChatLimiter } from '../youtube.limiter'
 
@@ -159,7 +160,7 @@ export class YoutubeService {
 
   private initChatListeners(ytc: YoutubeChat) {
     ytc.on('end', (reason) => {
-      this.sendEnd(ytc, reason)
+      this.handleEnd(ytc, reason)
       this.removeChat(ytc.videoId)
     })
 
@@ -175,10 +176,38 @@ export class YoutubeService {
     ytc.on('chat', (chat) => {
       this.handleChat(ytc, chat)
     })
+
+    ytc.on('superchat', (chat) => {
+      this.handleSuperChat(ytc, chat)
+    })
+  }
+
+  // #endregion
+
+  // #region chat handler
+
+  private async handleEnd(ytc: YoutubeChat, reason: EndReason) {
+    const fullTracks = config.tracks || []
+    const filterTracks = fullTracks.filter((track) => {
+      const baseChecks = [
+        !!track.discordChannelId,
+        track.allowReplay || ytc.isLive,
+        (track.allowNormalChat && !ytc.isMembersOnly) || (track.allowMemberChat && ytc.isMembersOnly),
+        track.userId === ytc.channelId,
+      ]
+      const matched = baseChecks.every((v) => v)
+      return matched
+    })
+
+    if (!filterTracks.length) {
+      return
+    }
+
+    await this.sendEnd(ytc, reason, filterTracks)
   }
 
   private async handleChat(ytc: YoutubeChat, chat: AddChatItemAction) {
-    const message = stringify(chat.message)
+    const message = stringify(chat.message) || ''
     const fullTracks = config.tracks || []
     const filterTracks = fullTracks.filter((track) => {
       const userChecks = [
@@ -212,21 +241,68 @@ export class YoutubeService {
       `[${ytc.videoId}]`,
       `[${chat.authorName || chat.authorChannelId}]`,
       message,
-    ].join(' ')
+    ].join(' ').trim()
     this.logger.info(info)
     await Promise.allSettled(filterTracks.map((track) => this.sendChat(ytc, chat, track)))
+  }
+
+  private async handleSuperChat(ytc: YoutubeChat, chat: AddSuperChatItemAction) {
+    const message = stringify(chat.message) || ''
+    const fullTracks = config.tracks || []
+    const filterTracks = fullTracks.filter((track) => {
+      const userChecks = [
+        // filter host chat
+        track.userId === chat.authorChannelId
+        && ytc.channelId === chat.authorChannelId,
+        // filter user chat
+        track.userId === ytc.channelId
+        && (track.filterUserId === chat.authorChannelId || config.youtube?.pollChannelIds?.includes?.(chat.authorChannelId)),
+        // filter user chat from all channel
+        !track.userId
+        && track.filterUserId === chat.authorChannelId
+        && ytc.channelId !== chat.authorChannelId,
+      ]
+      const baseChecks = [
+        !!track.discordChannelId,
+        track.allowReplay || ytc.isLive,
+        (track.allowNormalChat && !ytc.isMembersOnly) || (track.allowMemberChat && ytc.isMembersOnly),
+        !track.filterKeywords?.length || track.filterKeywords.some((keyword) => message.toLocaleLowerCase().includes(keyword.toLowerCase())),
+        userChecks.some((v) => v),
+      ]
+      const matched = baseChecks.every((v) => v)
+      return matched
+    })
+
+    if (!filterTracks.length) {
+      return
+    }
+
+    const info = [
+      YoutubeChatUtil.toColorEmoji(chat.color),
+      `[${chat.authorName || chat.authorChannelId}]`,
+      `[${chat.currency} ${chat.amount}]`,
+      message,
+    ].join(' ').trim()
+    this.logger.info(info)
+    await Promise.allSettled(filterTracks.map((track) => this.sendSuperChat(ytc, chat, track)))
   }
 
   // #endregion
 
   // #region send
 
+  private async sendEnd(ytc: YoutubeChat, reason: EndReason, tracks: TrackConfig[]) {
+    const channelIds = [...new Set(tracks.map((v) => v.discordChannelId))]
+    const content = `[${ytc.videoId}] end: ${reason}`
+    await Promise.allSettled(channelIds.map((id) => this.discordService.sendToChannel(id, { content })))
+  }
+
   private async sendChat(ytc: YoutubeChat, chat: AddChatItemAction, track: TrackConfig) {
     if (!track || !track.discordChannelId) {
       return
     }
 
-    const message = stringify(chat.message)
+    const message = stringify(chat.message) || ''
     const icons = []
     if (chat.isOwner) {
       icons.push('▶️')
@@ -239,7 +315,7 @@ export class YoutubeService {
     }
 
     const lines = [
-      `${icons.join('')} ${chat.authorName || chat.authorChannelId}: ${bold(message)}`.trim(),
+      `${icons.join(' ')} ${chat.authorName || chat.authorChannelId}: ${bold(message)}`.trim(),
     ]
     if (!track.userId) {
       const videoUrl = YoutubeUtil.getShortVideoUrl(ytc.videoId)
@@ -250,26 +326,24 @@ export class YoutubeService {
     await this.discordService.sendToChannel(track.discordChannelId, { content })
   }
 
-  private async sendEnd(ytc: YoutubeChat, reason: EndReason) {
-    const fullTracks = config.tracks || []
-    const filterTracks = fullTracks.filter((track) => {
-      const baseChecks = [
-        !!track.discordChannelId,
-        track.allowReplay || ytc.isLive,
-        (track.allowNormalChat && !ytc.isMembersOnly) || (track.allowMemberChat && ytc.isMembersOnly),
-        track.userId === ytc.channelId,
-      ]
-      const matched = baseChecks.every((v) => v)
-      return matched
-    })
-
-    if (!filterTracks.length) {
+  private async sendSuperChat(ytc: YoutubeChat, chat: AddSuperChatItemAction, track: TrackConfig) {
+    if (!track || !track.discordChannelId) {
       return
     }
 
-    const channelIds = [...new Set(filterTracks.map((v) => v.discordChannelId))]
-    const content = `[${ytc.videoId}] end: ${reason}`
-    await Promise.allSettled(channelIds.map((id) => this.discordService.sendToChannel(id, { content })))
+    const message = stringify(chat.message) || ''
+    const icons = ['💴', YoutubeChatUtil.toColorEmoji(chat.color)]
+
+    const lines = [
+      `${icons.join(' ')} ${chat.authorName || chat.authorChannelId}: ${bold(message)}`.trim(),
+    ]
+    if (!track.userId) {
+      const videoUrl = YoutubeUtil.getShortVideoUrl(ytc.videoId)
+      lines.push(`↪️ ${ytc.channelName || ytc.channelId} ${hideLinkEmbed(videoUrl)}`)
+    }
+
+    const content = lines.join('\n')
+    await this.discordService.sendToChannel(track.discordChannelId, { content })
   }
 
   // #endregion

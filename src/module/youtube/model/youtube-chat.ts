@@ -86,7 +86,7 @@ export class YoutubeChat extends Masterchat {
     })
 
     this.on('chat', (chat) => {
-      const message = stringify(chat.message)
+      const message = stringify(chat.message) || ''
       const info = [
         `[${chat.authorName || chat.authorChannelId}]`,
         message,
@@ -99,7 +99,7 @@ export class YoutubeChat extends Masterchat {
     })
 
     this.on('superchat', (chat) => {
-      const message = stringify(chat.message)
+      const message = stringify(chat.message) || ''
       const info = [
         YoutubeChatUtil.toColorEmoji(chat.color),
         `[${chat.authorName || chat.authorChannelId}]`,
