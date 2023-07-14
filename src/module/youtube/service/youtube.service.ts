@@ -174,10 +174,10 @@ export class YoutubeService {
       this.handleEnd(ytc, reason)
       this.removeChat(ytc.videoId)
 
-      if (reason === 'aborted') {
+      if (reason === 'aborted' && ytc.isLive) {
         if (this.errorVideos[ytc.videoId]?.code === 'membersOnly') {
           if (config.youtube?.memberChannelIds?.includes?.(ytc.channelId)) {
-            this.addChat(ytc.videoId)
+            this.addChat(ytc.videoId, true)
           }
         }
       }
