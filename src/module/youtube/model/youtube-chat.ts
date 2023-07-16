@@ -87,7 +87,16 @@ export class YoutubeChat extends Masterchat {
 
     this.on('chat', (chat) => {
       const message = stringify(chat.message) || ''
+      const icons = []
+      if (chat.isOwner) {
+        icons.push('▶️')
+      }
+      if (chat.isModerator) {
+        icons.push('🔧')
+      }
+
       const info = [
+        icons.join(' '),
         `[${chat.authorName || chat.authorChannelId}]`,
         message,
       ].join(' ').trim()
