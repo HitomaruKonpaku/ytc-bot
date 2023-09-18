@@ -34,7 +34,6 @@ export class YoutubeChat extends Masterchat {
 
   constructor(videoId: string) {
     super(videoId, '')
-    this.initLogger(videoId)
     this.initListeners()
   }
 
