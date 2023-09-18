@@ -65,7 +65,7 @@ export class YoutubeChat extends Masterchat {
     this.logger = baseLogger.child({ context: ['YTC', videoId] })
     this.chatLogger = chatLogger.child({ context: ['YTC_', videoId] })
     this.chatScLogger = chatLogger.child({ context: ['YTSC', videoId] })
-    this.superchatLogger = superchatLogger(videoId).child({ context: ['YTSC'] })
+    this.superchatLogger = superchatLogger(videoId, this.channelId).child({ context: ['YTSC'] })
   }
 
   private initListeners() {

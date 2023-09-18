@@ -95,7 +95,7 @@ const chatLogger = winston.createLogger({
   ],
 })
 
-const superchatLogger = (videoId: string) => winston.createLogger({
+const superchatLogger = (videoId: string, channelId?: string) => winston.createLogger({
   format: format.combine(
     format.timestamp(),
     format.metadata({ fillExcept: ['timestamp', 'level', 'message'] }),
@@ -113,7 +113,7 @@ const superchatLogger = (videoId: string) => winston.createLogger({
     new winston.transports.File({
       level: 'silly',
       format: format.combine(getPrintFormat()),
-      dirname: path.join(LOGGER_DIR, 'superchat'),
+      dirname: path.join(...[LOGGER_DIR, 'superchat', channelId].filter((v) => v)),
       filename: `${videoId}.log`,
     }),
   ],
