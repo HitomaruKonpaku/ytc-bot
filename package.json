@@ -24,7 +24,7 @@
     "@discordjs/rest": "^1.7.1",
     "@nestjs/common": "^10.0.5",
     "@nestjs/core": "^10.0.5",
-    "axios": "^0.27.2",
+    "axios": "^0.28.0",
     "bottleneck": "^2.19.5",
     "cheerio": "^1.0.0-rc.12",
     "discord-api-types": "^0.37.48",
