@@ -50,7 +50,13 @@ export class YoutubeChat extends Masterchat {
       APISID: process.env.YOUTUBE_APISID,
       SAPISID: process.env.YOUTUBE_SAPISID,
       SID: process.env.YOUTUBE_SID,
+
+      '__Secure-1PAPISID': process.env.YOUTUBE_SAPISID,
+      '__Secure-1PSID': process.env.YOUTUBE_1PSID,
+      '__Secure-1PSIDTS': process.env.YOUTUBE_1PSIDTS,
+      '__Secure-1PSIDCC': process.env.YOUTUBE_1PSIDCC,
     }
+
     this.logger.warn('applyCredentials')
     this.setCredentials(credentials)
   }
